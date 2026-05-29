@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pediatric Portal - pediatriki TseLkos</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=2.1">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-main">
+                <div class="app-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>Pediatric<span>Quiz</span> <span class="author-tag" style="font-size: 1.2rem; font-weight: 700; color: #ff7300; text-shadow: 0 0 8px rgba(59, 130, 246, 0.9), 0 0 4px rgba(37, 99, 235, 0.8); margin-left: 8px; letter-spacing: 0.5px; vertical-align: middle;">By TseLkos</span></h1>
+                </div>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="icon-button" aria-label="Toggle Theme">
+                        <!-- Sun Icon -->
+                        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Portal Content -->
+        <main class="app-main">
+            <!-- Profile Card -->
+            <section class="profile-card-panel">
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <div class="profile-avatar">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h2>Pediatriki TseLkos</h2>
+                        <p class="profile-sub">Παιδιατρικός Προσομοιωτής & Μελέτη</p>
+                        <a href="mailto:stergiostselkos@gmail.com" class="profile-email-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 6px;">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            stergiostselkos@gmail.com
+                        </a>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">💡 Αν εντοπίσετε κάποια λάθη στις απαντήσεις, καλό θα ήταν να μου στείλετε μήνυμα να τα διορθώσουμε!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Grid -->
+            <section class="portal-grid">
+                <!-- Quiz Card -->
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <div class="portal-card-icon quiz-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9.09 9C9.3251 8.27242 9.8183 7.66224 10.4859 7.27022C11.1536 6.8782 11.9547 6.72922 12.7118 6.84883C13.4688 6.96843 14.133 7.34947 14.5888 7.92506C15.0446 8.50066 15.263 9.23698 15.2 9.99C15.1 11.25 13.5 12 13.5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 17H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Προσομοιωτής Quiz</h3>
+                    </div>
+                    <p class="portal-card-desc">Δοκιμάστε τις γνώσεις σας σε <strong>615 ερωτήσεις</strong> πολλαπλής επιλογής με try-until-correct λογική και αναλυτικές απαντήσεις.</p>
+                    <a href="quiz.html" class="portal-card-btn quiz-btn">Έναρξη Quiz</a>
+                </div>
+
+                <!-- Study Portal Card -->
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <div class="portal-card-icon study-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Θέματα Ανάπτυξης</h3>
+                    </div>
+                    <p class="portal-card-desc">Μελετήστε τη θεωρία με τη <strong>μάθηση των 10 ερωτήσεων ανάπτυξης</strong> (Σωκρατικός διάλογος) και <strong>39 flashcards γρήγορης ανάκλησης</strong>.</p>
+                    <a href="study.html" class="portal-card-btn study-btn">Μελέτη & Ανάπτυξη</a>
+                </div>
+
+                <!-- Game Portal Card -->
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <div class="portal-card-icon game-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3h18v18H3V3zm0 6h18M3 15h18M9 3v18M15 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Παιχνίδι Πινάκων</h3>
+                    </div>
+                    <p class="portal-card-desc">Εκμάθηση μέσα από παιχνίδι! Συμπληρώστε διαδραστικά τους ιατρικούς πίνακες (APGAR, Αφυδάτωση, Γλασκόβη, κλπ.) με σωστά συμπτώματα και τιμές.</p>
+                    <a href="game.html" class="portal-card-btn game-btn">Έναρξη Παιχνιδιού</a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer Info -->
+        <footer class="app-footer">
+            <p>Σχεδιασμένο για ιατρική εκπαίδευση & εμπέδωση θεωρίας</p>
+            <div class="study-feedback-footer" style="margin-top: 16px; padding: 12px 10px; border-top: 1px dashed var(--card-border); text-align: center; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;">
+                💡 Αν εντοπίσετε κάποιο λάθος στις απαντήσεις, παρακαλώ στείλτε μου μήνυμα στο <a href="mailto:stergiostselkos@gmail.com" style="color: var(--primary-color); font-weight: 700; text-decoration: none; border-bottom: 1px dashed var(--primary-color); transition: all 0.2s ease;">stergiostselkos@gmail.com</a> για να το διορθώσουμε μαζί!
+            </div>
+        </footer>
+    </div>
+
+    <!-- Theme switch logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            }
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                if (document.body.classList.contains('dark-theme')) {
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

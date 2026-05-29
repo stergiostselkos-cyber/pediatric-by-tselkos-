@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Εκμάθηση μέσα από Παιχνίδι - Παιδιατρικό Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body class="dark-theme">
+    <div class="app-container game-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-main">
+                <div class="app-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>Pediatric<span>Quiz</span> <span class="author-tag" style="font-size: 1.2rem; font-weight: 700; color: #ff7300; text-shadow: 0 0 8px rgba(59, 130, 246, 0.9), 0 0 4px rgba(37, 99, 235, 0.8); margin-left: 8px; letter-spacing: 0.5px; vertical-align: middle;">By TseLkos</span></h1>
+                </div>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="icon-button" aria-label="Toggle Theme">
+                        <!-- Sun Icon -->
+                        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="game-nav-bar" style="margin-top: 10px; margin-bottom: 20px;">
+            <a href="index.html" class="back-link-btn" style="display: inline-flex; align-items: center; gap: 8px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 1rem; padding: 8px 16px; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.15); transition: all 0.2s ease;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Αρχική Σελίδα
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Game Introduction -->
+            <section class="profile-card-panel" style="margin-bottom: 24px;">
+                <div class="profile-header" style="align-items: center;">
+                    <div class="profile-avatar-container">
+                        <div class="profile-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                            🎮
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text-primary);">Εκμάθηση μέσα από Παιχνίδι</h2>
+                        <p class="profile-sub">Συμπληρώστε τους ιατρικούς πίνακες με τα σωστά κλινικά ευρήματα, αναγνωρίζοντας τις παγίδες!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Table Selectors -->
+            <section class="filters-panel" style="margin-bottom: 24px; padding: 20px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--card-border);">
+                <div class="filters-grid-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="filter-group">
+                        <label for="game-chapter-select" style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">1. Επιλογή Κεφαλαίου</label>
+                        <select id="game-chapter-select" class="filter-dropdown" style="width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--card-border); color: var(--text-primary); font-size: 1rem; font-family: inherit; font-weight: 500; cursor: pointer; outline: none; transition: border 0.2s;">
+                            <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="game-table-select" style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">2. Επιλογή Πίνακα για Μελέτη</label>
+                        <select id="game-table-select" class="filter-dropdown" style="width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--card-border); color: var(--text-primary); font-size: 1rem; font-family: inherit; font-weight: 500; cursor: pointer; outline: none; transition: border 0.2s;">
+                            <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Arena Workspace (Table and Pool side-by-side) -->
+            <div class="game-interactive-workspace" style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; margin-bottom: 24px; align-items: start;">
+                <!-- Left Column: Interactive Table Grid -->
+                <section class="game-table-panel" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow-x: auto; margin: 0;">
+                    <div id="game-table-title-container" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed var(--card-border);">
+                        <h2 id="game-table-title" style="font-size: 1.4rem; font-weight: 700; color: var(--accent-color); margin: 0;">--</h2>
+                    </div>
+
+                    <!-- The Table Grid -->
+                    <div class="table-responsive" style="margin-bottom: 20px;">
+                        <table class="med-table game-matching-table" style="width: 100%; border-collapse: collapse;">
+                            <thead id="game-table-thead">
+                                <!-- Loaded dynamically -->
+                            </thead>
+                            <tbody id="game-table-tbody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Right Column: Drag/Click Items Pool -->
+                <section class="game-pool-panel" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-top: 0;">
+                        📦 Δεξαμενή Επιλογών
+                    </h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4; margin-top: 0;">💡 <em>Κλικ σε κάρτα και μετά κλικ σε κελί για τοποθέτηση. Κλικ σε τοποθετημένη για επιστροφή.</em></p>
+                    <div id="game-items-pool" class="pool-items-flex" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Shuffled cards loaded dynamically -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Action Buttons and Feedback Bar -->
+            <section class="game-actions-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding: 18px 24px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                <!-- Left: Feedback messages -->
+                <div id="game-feedback-message" style="font-size: 1.1rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+                    Έτοιμοι για παιχνίδι! Τοποθετήστε όλα τα στοιχεία.
+                </div>
+
+                <!-- Right: Buttons -->
+                <div class="actions-buttons-group" style="display: flex; gap: 12px; align-items: center;">
+                    <span id="attempts-badge" style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 6px; border: 1px solid var(--card-border);">Προσπάθειες: 0</span>
+                    <button id="reset-game-btn" class="portal-card-btn" style="padding: 10px 18px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-primary); font-weight: 600; cursor: pointer; transition: all 0.2s;">Επανέναρξη</button>
+                    <button id="solution-game-btn" class="portal-card-btn disabled" disabled style="padding: 10px 18px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: 600; cursor: not-allowed; opacity: 0.5; transition: all 0.2s;">Εμφάνιση Λύσης (0/5)</button>
+                    <button id="check-game-btn" class="portal-card-btn study-btn" style="padding: 10px 24px; border-radius: 8px; font-weight: 700; color: white; cursor: pointer; transition: all 0.2s;">Έλεγχος Απαντήσεων</button>
+                </div>
+            </section>
+
+            <!-- Bottom Section: Explanatory Texts (Pathophysiology & Solution Analysis) -->
+            <div class="game-info-bottom-grid" style="display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 24px;">
+                <!-- Pathophysiology Card -->
+                <aside class="game-pathophysiology-sidebar" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: #ff7300; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; margin-top: 0;">
+                        🧠 Παθοφυσιολογία &amp; Κλινικός Συλλογισμός
+                    </h3>
+                    <div id="pathophysiology-text" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary);">
+                        Μελετήστε τον μηχανισμό της νόσου για να βρείτε τα σωστά κλινικά ευρήματα...
+                    </div>
+                </aside>
+
+                <!-- Complete Analysis / Post-Game Section -->
+                <section id="game-analysis-panel" class="hidden" style="background: var(--card-bg); border: 1px solid var(--success-border); border-left: 4px solid var(--success-color); border-radius: 12px; padding: 24px; margin: 0;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--success-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; margin-top: 0;">
+                        🎉 Συγχαρητήρια! Ο Πίνακας Συμπληρώθηκε Σωστά.
+                    </h3>
+                    <div style="font-size: 1rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 12px;">
+                        <strong>Κλινική Ανάλυση &amp; Ερμηνεία Πίνακα:</strong>
+                    </div>
+                    <div id="game-analysis-text" style="font-size: 0.98rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-line;">
+                        <!-- Final analysis loaded dynamically -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer Info -->
+        <footer class="app-footer">
+            <p>Σχεδιασμένο για ιατρική εκπαίδευση & εμπέδωση θεωρίας</p>
+            <div class="study-feedback-footer" style="margin-top: 16px; padding: 12px 10px; border-top: 1px dashed var(--card-border); text-align: center; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5;">
+                💡 Αν εντοπίσετε κάποιο λάθος στις απαντήσεις, παρακαλώ στείλτε μου μήνυμα στο <a href="mailto:stergiostselkos@gmail.com" style="color: var(--primary-color); font-weight: 700; text-decoration: none; border-bottom: 1px dashed var(--primary-color); transition: all 0.2s ease;">stergiostselkos@gmail.com</a> για να το διορθώσουμε μαζί!
+            </div>
+        </footer>
+    </div>
+
+    <!-- Load Game Databases and JS scripts -->
+    <script src="data/game_tables.js"></script>
+    <script src="game.js"></script>
+    
+    <!-- Theme Toggle logic synced -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            }
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                if (document.body.classList.contains('dark-theme')) {
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

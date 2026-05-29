@@ -1,0 +1,658 @@
+// Application State
+let questions = [];
+let filteredQuestions = [];
+let activeSubspecialty = "Όλα";
+let currentQuestionIndex = 0;
+let score = 0; // Number of questions answered correctly on the first try
+let totalAttempts = 0; // Overall number of options clicked
+
+// Greek Letter mapping for options (supports questions with up to 8 options)
+const GREEK_LETTERS = ['Α', 'Β', 'Γ', 'Δ', 'Ε', 'Ζ', 'Η', 'Θ'];
+
+// DOM Elements
+const quizView = document.getElementById('quiz-view');
+const resultsView = document.getElementById('results-view');
+const categoryBadge = document.getElementById('category-badge');
+const questionText = document.getElementById('question-text');
+const optionsList = document.getElementById('options-list');
+const explanationPanel = document.getElementById('explanation-panel');
+const explanationContent = document.getElementById('explanation-content');
+const nextButton = document.getElementById('next-button');
+const prevButton = document.getElementById('prev-button');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const revealAnswerBtn = document.getElementById('reveal-answer-btn');
+const quickNavPills = document.getElementById('quick-nav-pills');
+
+// Progress Elements
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const scoreText = document.getElementById('score-text');
+
+// Results Elements
+const finalScore = document.getElementById('final-score');
+const finalCorrect = document.getElementById('final-correct');
+const finalAttempts = document.getElementById('final-attempts');
+const performanceRating = document.getElementById('performance-rating');
+const restartButton = document.getElementById('restart-button');
+
+/**
+ * Initialize Application
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    loadQuestions();
+    
+    // Event Listeners
+    nextButton.addEventListener('click', handleNextQuestion);
+    prevButton.addEventListener('click', handlePrevQuestion);
+    restartButton.addEventListener('click', restartQuiz);
+    themeToggleBtn.addEventListener('click', toggleTheme);
+    if (revealAnswerBtn) {
+        revealAnswerBtn.addEventListener('click', handleRevealAnswer);
+    }
+});
+
+/**
+ * Theme Management
+ */
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+function toggleTheme() {
+    if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+/**
+ * Helper to get the correct answer index from a question object.
+ * Supports both:
+ * - "correctAnswerIndex" (used in Q1-49, which is 0-based: 0, 1, 2, 3)
+ * - "correct" (used in Q50-66, which is 1-based: 1, 2, 3, 4, converted to 0-based here)
+ */
+function getCorrectAnswerIndex(question) {
+    if (typeof question.correctAnswerIndex !== 'undefined' && question.correctAnswerIndex !== null) {
+        return parseInt(question.correctAnswerIndex, 10); // 0-based
+    }
+    if (typeof question.correct !== 'undefined' && question.correct !== null) {
+        return parseInt(question.correct, 10) - 1; // 1-based -> Convert to 0-based
+    }
+    return -1; // Fallback in case of error
+}
+
+/**
+ * Helper to extract and normalize main subspecialty from category
+ */
+/**
+ * Helper to determine which medical systems a question belongs to.
+ * Maps a single question to potentially multiple systems dynamically based on keywords.
+ */
+function getSystemsForQuestion(q) {
+    const systems = [];
+    const category = (q.category || "").toLowerCase();
+    const text = ((q.question || "") + " " + (q.explanation || "")).toLowerCase();
+    
+    const has = (str, keywords) => keywords.some(k => str.includes(k));
+    
+    // 1. Καρδιά
+    if (has(category, ["καρδιο", "καρδια", "ηκγ", "κυκλοφορ"]) || 
+        has(text, ["καρδιακ", "καρδιά", "ηκγ", "περικάρδ", "μυοκάρδ", "συγγενής καρδιοπάθεια", "τετραλογία fallot"])) {
+        systems.push("Καρδιά");
+    }
+    
+    // 2. Αναπνευστικό
+    if (has(category, ["αναπνευστ", "πνευμον", "άσθμα", "βρογχ"]) ||
+        has(text, ["αναπνευστ", "πνευμον", "άσθμα", "βρογχ", "συρίττον", "λαρυγγόσπασμ", "κρουπ", "εισρόφηση"])) {
+        systems.push("Αναπνευστικό");
+    }
+    
+    // 3. Νευρικό
+    if (has(category, ["νευρο", "κνς", "επιληψ", "σπασμ"]) ||
+        has(text, ["νευρο", "σπασμ", "επιληψ", "μηνιγγ", "εγκεφαλ", "κρανι", "οσφυονωτιαία", "αντανακλαστικά"])) {
+        systems.push("Νευρικό");
+    }
+    
+    // 4. Μυοσκελετικό
+    if (has(category, ["ορθοπ", "μυοσκελ", "οστικ"]) ||
+        has(text, ["ορθοπ", "κάταγμα", "κατάγματα", "άρθρωση", "μυϊκ", "σκελετ", "ισχίο", "βάδιση", "σκολίωση", "οστεομυελ", "οστεοσαρκ"])) {
+        systems.push("Μυοσκελετικό");
+    }
+    
+    // 5. Γαστρεντερικό
+    if (has(category, ["γαστρ", "ηπατ", "χολ", "πυλωρ", "hirsch", "εγκολε", "κοιλια", "θηλασμ", "διατροφ"]) ||
+        has(text, ["γαστρ", "έντερο", "ήπαρ", "ηπατ", "χολή", "εμετ", "διάρροια", "δυσκοιλι", "κοιλιακ", "πυλωρικ", "hirschsprung", "εγκολεασμ"])) {
+        systems.push("Γαστρεντερικό");
+    }
+    
+    // 6. Ψυχιατρική
+    if (has(category, ["ψυχ", "συμπεριf", "ύπνο", "συμπεριφ"]) ||
+        has(text, ["ψυχιατρ", "ψυχολογ", "κατάθλιψη", "άγχος", "αυτισμ", "δεπυ", "συμπεριφορά", "διαταραχές ύπνου", "νευρική ανορεξία", "βουλιμία"])) {
+        systems.push("Ψυχιατρική");
+    }
+    
+    // 7. Επείγουσα
+    if (has(category, ["επείγ", "εντατικ", "shock", "abcde", "αεραγωγ", "τοξικ", "ανάνηψ", "υγρά", "ηλεκτρολ", "οξεοβασ"]) ||
+        has(text, ["επείγον", "shock", "καταπληξία", "διασωλήν", "αναζωογόνη", "δηλητηρία", "τοξικ", "ανάνηψη", "αφυδάτωση", "υγρά ανάνηψης", "μεθ"])) {
+        systems.push("Επείγουσα");
+    }
+    
+    // 8. Λοιμώξεις
+    if (has(category, ["λοιμ", "εμβολ", "μηνιγγ", "φαρυγγ", "φυματ", "εξανθημ", "torch", "ιοί", "βακτηρ", "σηψ", "ωτιτ"]) ||
+        has(text, ["λοίμωξη", "λοιμώδ", "ιός", "βακτήριο", "βακτηρι", "αντιβιοτικ", "πυρετός", "πυρετού", "εμβόλ", "μηνιγγίτιδα", "σήψη", "πνευμονία", "ωτίτιδα"])) {
+        systems.push("Λοιμώξεις");
+    }
+    
+    // 9. Συγγενή νοσήματα
+    if (has(category, ["γενετ", "συγγεν", "χρωμοσ", "μικροελλ", "down", "turner", "klinefelter", "μεταβολικ", "κληρονομ"]) ||
+        has(text, ["συγγενής", "συγγενή", "σύνδρομο", "γενετικ", "χρωμοσώμ", "τρισωμία", "down", "turner", "klinefelter", "μεταβολικ", "κληρονομ"])) {
+        systems.push("Συγγενή νοσήματα");
+    }
+    
+    // 10. Ρευματολογικά
+    if (has(category, ["ρευματ", "νια", "σελ", "αυτοφλεγ"]) ||
+        has(text, ["ρευματ", "αρθρίτιδα", "λύκος", "σελ", "kawasaki", "αυτοφλεγ", "αγγειίτιδα", "henoch"])) {
+        systems.push("Ρευματολογικά");
+    }
+    
+    // 11. Αυτοάνοσα
+    if (has(category, ["αυτοαν", "αυτοάνο", "ανοσο", "ρευματ", "νια", "σελ", "αλλεργ"]) ||
+        has(text, ["αυτοάνοσ", "λύκος", "σελ", "αρθρίτιδα", "kawasaki", "κοιλιοκάκη", "ανοσοσφαιρ", "αλλεργ"])) {
+        systems.push("Αυτοάνοσα");
+    }
+    
+    // Fallback to Γενικά if no system fits
+    if (systems.length === 0) {
+        systems.push("Γενικά");
+    }
+    
+    return systems;
+}
+
+/**
+ * Load questions from local questions.js
+ */
+function loadQuestions() {
+    try {
+        if (typeof questionsData !== 'undefined' && Array.isArray(questionsData)) {
+            questions = questionsData;
+        } else {
+            throw new Error("questionsData is not defined or is not an array");
+        }
+        
+        if (questions.length === 0) {
+            questionText.textContent = "Δεν βρέθηκαν ερωτήσεις στη βάση δεδομένων.";
+            return;
+        }
+        
+        // Reset full state
+        questions.forEach(q => {
+            q.answeredCorrectly = false;
+            q.incorrectIndices = [];
+            q.isFirstAttempt = true;
+        });
+        
+        startQuiz();
+    } catch (error) {
+        console.error("Σφάλμα κατά τη φόρτωση των ερωτήσεων:", error);
+        questionText.textContent = "Αποτυχία φόρτωσης των ερωτήσεων. Βεβαιωθείτε ότι το αρχείο questions.js υπάρχει.";
+    }
+}
+
+/**
+ * Filter questions to show all 615 items
+ */
+function filterQuestions() {
+    filteredQuestions = questions;
+    
+    currentQuestionIndex = 0;
+    initQuickNav();
+    showQuestion(0);
+}
+
+
+/**
+ * Start/Restart Quiz state
+ */
+function startQuiz() {
+    // Reset scores & attempts
+    score = 0;
+    totalAttempts = 0;
+    
+    // Reset individual progress state for all questions
+    questions.forEach(q => {
+        q.answeredCorrectly = false;
+        q.incorrectIndices = [];
+        q.isFirstAttempt = true;
+    });
+    
+    // Apply filters
+    filterQuestions();
+    
+    quizView.classList.remove('hidden');
+    resultsView.classList.add('hidden');
+}
+
+/**
+ * Display Question at index
+ */
+function showQuestion(index) {
+    if (filteredQuestions.length === 0) {
+        questionText.textContent = "Δεν βρέθηκαν ερωτήσεις για αυτή την ειδικότητα.";
+        optionsList.innerHTML = "";
+        if (revealAnswerBtn) revealAnswerBtn.style.display = 'none';
+        explanationPanel.classList.remove('expanded');
+        explanationContent.innerHTML = "";
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        progressText.textContent = "Ερώτηση 0 από 0";
+        progressFill.style.width = "0%";
+        return;
+    }
+    const question = filteredQuestions[index];
+    
+    // Fallback initializations
+    if (typeof question.answeredCorrectly === 'undefined') question.answeredCorrectly = false;
+    if (typeof question.incorrectIndices === 'undefined') question.incorrectIndices = [];
+    if (typeof question.isFirstAttempt === 'undefined') question.isFirstAttempt = true;
+    
+    // Set UI elements
+    categoryBadge.textContent = question.category || "Παιδιατρική";
+    questionText.textContent = question.question;
+    
+    // Navigation state
+    prevButton.disabled = (index === 0);
+    
+    // Change Next button text on the last question to reflect completion
+    const nextSpan = nextButton.querySelector('span');
+    if (index === filteredQuestions.length - 1) {
+        nextSpan.textContent = "Αποτελέσματα";
+    } else {
+        nextSpan.textContent = "Επόμενη";
+    }
+    
+    const correctIdx = getCorrectAnswerIndex(question);
+    
+    // Clear and render options
+    optionsList.innerHTML = "";
+    question.options.forEach((option, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.setAttribute('data-index', i);
+        
+        // Option structure: Badge with Letter + Option Text
+        btn.innerHTML = `
+            <div class="option-badge">${GREEK_LETTERS[i]}</div>
+            <div class="option-text">${option}</div>
+        `;
+        
+        // Determine button state based on historical attempts
+        if (question.answeredCorrectly) {
+            btn.disabled = true;
+            if (i === correctIdx) {
+                btn.classList.add('correct');
+            } else if (question.incorrectIndices.includes(i)) {
+                btn.classList.add('incorrect');
+            }
+        } else {
+            if (question.incorrectIndices.includes(i)) {
+                btn.classList.add('incorrect');
+                btn.disabled = true;
+            } else {
+                btn.addEventListener('click', () => handleOptionSelection(i, btn));
+            }
+        }
+        
+        optionsList.appendChild(btn);
+    });
+    
+    // Toggle explanation display
+    if (question.answeredCorrectly) {
+        revealExplanation(question.explanation);
+        if (revealAnswerBtn) revealAnswerBtn.style.display = 'none';
+    } else {
+        explanationPanel.classList.remove('expanded');
+        explanationContent.innerHTML = "";
+        if (revealAnswerBtn) revealAnswerBtn.style.display = 'flex';
+    }
+    
+    updateProgressBar();
+    updateQuickNavHighlight();
+}
+
+/**
+ * Handle Option Clicks
+ */
+function handleOptionSelection(index, buttonElement) {
+    const question = filteredQuestions[currentQuestionIndex];
+    totalAttempts++;
+    
+    const correctIdx = getCorrectAnswerIndex(question);
+    
+    // Check if correct
+    if (index === correctIdx) {
+        // Correct Choice
+        question.answeredCorrectly = true;
+        buttonElement.classList.add('correct');
+        
+        // Increment score only if it was correct on the first attempt
+        if (question.isFirstAttempt) {
+            score++;
+        }
+        
+        // Disable all option buttons (and recreate nodes to strip listeners)
+        const allOptionBtns = optionsList.querySelectorAll('.option-btn');
+        allOptionBtns.forEach(btn => {
+            btn.disabled = true;
+            // Clone node to clean events
+            const clone = btn.cloneNode(true);
+            btn.parentNode.replaceChild(clone, btn);
+        });
+        
+        // Show explanation
+        revealExplanation(question.explanation);
+        
+        updateProgressBar();
+    } else {
+        // Incorrect Choice
+        question.isFirstAttempt = false;
+        if (!question.incorrectIndices.includes(index)) {
+            question.incorrectIndices.push(index);
+        }
+        
+        // Mark button as incorrect and disable it
+        buttonElement.classList.add('incorrect');
+        buttonElement.disabled = true;
+        
+        // Add shake animation
+        buttonElement.classList.add('shake');
+        buttonElement.addEventListener('animationend', () => {
+            buttonElement.classList.remove('shake');
+        });
+    }
+}
+
+/**
+ * Handle Reveal Answer Click
+ */
+function handleRevealAnswer() {
+    const question = filteredQuestions[currentQuestionIndex];
+    question.answeredCorrectly = true;
+    question.isFirstAttempt = false;
+    
+    // Refresh current question display to apply correct states
+    showQuestion(currentQuestionIndex);
+}
+
+/**
+ * Reveal explanation panel and parse markdown
+ */
+function revealExplanation(explanationText) {
+    const parsedHtml = parseMarkdown(explanationText);
+    explanationContent.innerHTML = parsedHtml;
+    explanationPanel.classList.add('expanded');
+    
+    // Smooth scroll down to explanation panel if mobile
+    if (window.innerWidth < 600) {
+        setTimeout(() => {
+            explanationPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
+    }
+}
+
+/**
+ * Simple Markdown to HTML parser
+ */
+function parseMarkdown(text) {
+    if (!text) return "";
+    
+    const lines = text.split('\n');
+    let html = "";
+    let inList = false;
+    let inOrderedList = false;
+    
+    for (let line of lines) {
+        line = line.trim();
+        if (!line) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
+            if (inOrderedList) {
+                html += "</ol>";
+                inOrderedList = false;
+            }
+            continue;
+        }
+        
+        // Parse bold: **text** -> <strong>text</strong>
+        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Heading ###
+        if (line.startsWith("###")) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
+            if (inOrderedList) {
+                html += "</ol>";
+                inOrderedList = false;
+            }
+            const headerText = line.substring(3).trim();
+            html += `<h3>${headerText}</h3>`;
+        }
+        // Unordered list items - or * or •
+        else if (line.startsWith("-") || line.startsWith("*") || line.startsWith("•") || line.startsWith("\u2022")) {
+            if (inOrderedList) {
+                html += "</ol>";
+                inOrderedList = false;
+            }
+            if (!inList) {
+                html += "<ul>";
+                inList = true;
+            }
+            const liText = line.replace(/^[-*•\u2022]\s*/, '').trim();
+            html += `<li>${liText}</li>`;
+        }
+        // Ordered list items
+        else if (/^\d+\.\s+/.test(line)) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
+            if (!inOrderedList) {
+                html += "<ol>";
+                inOrderedList = true;
+            }
+            const liText = line.replace(/^\d+\.\s+/, '').trim();
+            html += `<li>${liText}</li>`;
+        }
+        // Standard Paragraphs
+        else {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
+            if (inOrderedList) {
+                html += "</ol>";
+                inOrderedList = false;
+            }
+            html += `<p>${line}</p>`;
+        }
+    }
+    
+    if (inList) {
+        html += "</ul>";
+    }
+    if (inOrderedList) {
+        html += "</ol>";
+    }
+    
+    return html;
+}
+
+/**
+ * Update Progress Bar and stats
+ */
+function updateProgressBar() {
+    const total = filteredQuestions.length;
+    const current = currentQuestionIndex + 1;
+    // Calculate percentage based on answered questions
+    const percentage = total > 0 ? Math.round((currentQuestionIndex / total) * 100) : 0;
+    
+    progressFill.style.width = `${percentage}%`;
+    progressText.textContent = `Ερώτηση ${current} από ${total}`;
+    
+    // Live score based on answered questions so far
+    const answeredQuestions = filteredQuestions.filter(q => q.answeredCorrectly);
+    const answeredCount = answeredQuestions.length;
+    
+    // Calculate score based on first-attempt correct answers out of the answered ones
+    const liveScorePercent = answeredCount > 0 
+        ? Math.round((score / answeredCount) * 100) 
+        : 0;
+    scoreText.textContent = `Σκορ: ${liveScorePercent}%`;
+}
+
+/**
+ * Handle Next Question Navigation
+ */
+function handleNextQuestion() {
+    if (currentQuestionIndex < filteredQuestions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+    } else {
+        // End of Quiz, show results
+        showResults();
+    }
+}
+
+/**
+ * Handle Previous Question Navigation
+ */
+function handlePrevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+    }
+}
+
+/**
+ * End of Quiz: Display Results View
+ */
+function showResults() {
+    quizView.classList.add('hidden');
+    resultsView.classList.remove('hidden');
+    
+    progressFill.style.width = "100%";
+    progressText.textContent = `Ολοκληρώθηκε!`;
+    
+    const total = filteredQuestions.length;
+    const finalPercent = total > 0 ? Math.round((score / total) * 100) : 0;
+    
+    finalScore.textContent = `${finalPercent}%`;
+    finalCorrect.textContent = `${score} / ${total}`;
+    finalAttempts.textContent = `${totalAttempts}`;
+    
+    // Performance Rating Banner
+    let ratingText = "";
+    if (finalPercent >= 90) {
+        ratingText = "🏆 Αριστεία! Εξαιρετική κατάρτιση στην Παιδιατρική.";
+    } else if (finalPercent >= 75) {
+        ratingText = "✨ Πολύ καλή επίδοση! Καλή κατανόηση της ύλης.";
+    } else if (finalPercent >= 50) {
+        ratingText = "📚 Ικανοποιητική προσπάθεια. Χρειάζεται περισσότερη μελέτη της θεωρίας.";
+    } else {
+        ratingText = "⚠️ Χρειάζεται επανάληψη. Μελετήστε ξανά τις αναλύσεις των ερωτήσεων.";
+    }
+    performanceRating.textContent = ratingText;
+    
+    scoreText.textContent = `Σκορ: ${finalPercent}%`;
+}
+
+/**
+ * Restart Quiz
+ */
+function restartQuiz() {
+    startQuiz();
+}
+
+/**
+ * Initialize Quick Navigation Jump Buttons
+ */
+function initQuickNav() {
+    if (!quickNavPills) return;
+    quickNavPills.innerHTML = "";
+    
+    const total = filteredQuestions.length;
+    if (total === 0) return;
+    
+    // Create targets for Question 1, and every multiple of 50
+    const indices = [0];
+    for (let qNum = 50; qNum < total; qNum += 50) {
+        indices.push(qNum - 1);
+    }
+    
+    indices.forEach(idx => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-nav-btn';
+        btn.setAttribute('data-target-index', idx);
+        btn.textContent = idx === 0 ? "1" : (idx + 1).toString();
+        
+        btn.addEventListener('click', () => {
+            currentQuestionIndex = idx;
+            showQuestion(currentQuestionIndex);
+        });
+        
+        quickNavPills.appendChild(btn);
+    });
+}
+
+/**
+ * Update Quick Navigation Pill Highlights
+ */
+function updateQuickNavHighlight() {
+    if (!quickNavPills) return;
+    const btns = quickNavPills.querySelectorAll('.quick-nav-btn');
+    if (btns.length === 0) return;
+    
+    btns.forEach(btn => btn.classList.remove('active'));
+    
+    const total = filteredQuestions.length;
+    if (total === 0) return;
+    
+    const indices = [0];
+    for (let qNum = 50; qNum < total; qNum += 50) {
+        indices.push(qNum - 1);
+    }
+    
+    let activeIdx = 0;
+    for (let i = 0; i < indices.length; i++) {
+        if (indices[i] <= currentQuestionIndex) {
+            activeIdx = indices[i];
+        } else {
+            break;
+        }
+    }
+    
+    const activeBtn = Array.from(btns).find(btn => parseInt(btn.getAttribute('data-target-index'), 10) === activeIdx);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        // Smoothly scroll the active pill into view horizontally
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+}
