@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     loadQuestions();
     setupEventListeners();
+    showView('quick-recall');
 });
 
 /**
@@ -133,12 +134,38 @@ function getChapterFromCategory(category) {
  * Helper to get the chapter of a question object (handles parsed chapter or extracts from category)
  */
 function getQuestionChapter(q) {
-    return q.chapter || getChapterFromCategory(q.category);
+    let rawCh = q.chapter || "";
+    if (!rawCh) {
+        const cat = q.category || "";
+        if (cat.includes("Λήψη Ιστορικού") || cat.includes("Κλινική Εξέταση") || cat.includes("Φυσιολογία") || cat.includes("Καρδιολογία") || cat.includes("Αναπνευστικό") || cat.includes("Επείγουσα")) {
+            rawCh = "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
+        } else if (cat.includes("Αύξηση") || cat.includes("Ανάπτυξη") || cat.includes("Νευροαναπτυξιολογία") || cat.includes("Παιδοφθαλμολογία") || cat.includes("ΩΡΛ") || cat.includes("Νευρολογία") || cat.includes("Αιματολογία") || cat.includes("Γαστρεντερολογία")) {
+            rawCh = "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ";
+        } else {
+            rawCh = getChapterFromCategory(q.category);
+        }
+    }
+    
+    // Normalize and strip outer brackets
+    let ch = rawCh.replace(/^\[/, "").replace(/\]$/, "").trim();
+    
+    // Normalize raw chapter text to standard rich names
+    const match = ch.match(/^(\d+)/);
+    if (match) {
+        const num = parseInt(match[1], 10);
+        if (num === 1) return "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
+        if (num === 2) return "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ";
+        if (num === 4) return "4ο, ΓΕΝΕΤΙΚΗ";
+        if (num === 5) return "5ο, ΜΕΤΑΒΟΛΙΚΑ ΝΟΣΗΜΑΤΑ";
+        if (num === 6) return "6ο, ΝΕΟΓΝΟΛΟΓΙΑ";
+        if (num === 8) return "8ο, ΥΓΡΑ ΚΑΙ ΗΛΕΚΤΡΟΛΥΤΕΣ, ΟΞΕΟΒΑΣΙΚΗ ΙΣΟΡΡΟΠΙΑ";
+    }
+    return ch;
 }
 
 /**
  * Helper to check if a question's chapter matches the selected chapter.
- * Supports matching prefix numbers (e.g., "1" matches "1ο Κεφάλαιο" and "1ο, ΙΣΤΟΡΙΚΟ...")
+ * Supports matching prefix numbers (e.g., "1" matches "1ο, ΙΣΤΟΡΙΚΟ...")
  */
 function isChapterMatch(questionCh, activeCh) {
     if (activeCh === "Όλα") return true;
@@ -153,38 +180,60 @@ function isChapterMatch(questionCh, activeCh) {
 }
 
 /**
- * Dynamically builds the list of 27 chapters.
- * Overrides the default label with the rich parsed label from the questions if present.
+ * Dynamically builds the ordered list of chapters.
+ * Uses rich names directly from the data.
  */
 function getChapterList(questions) {
-    const list = [];
-    for (let i = 1; i <= 27; i++) {
-        if (i === 3) continue; // Skip Chapter 3 (out of syllabus)
-        if (i === 4) continue; // Skip Chapter 4 (keep custom "4ο, ΓΕΝΕΤΙΚΗ" instead)
-        if (i === 5) continue; // Skip Chapter 5 (keep custom "5ο- μεταβολικά νοσήματα" instead)
-        list.push(`${i}ο Κεφάλαιο`);
-    }
-
-    const extraChapters = new Set();
-
+    const presentChapters = new Set();
     questions.forEach(q => {
         const ch = getQuestionChapter(q);
-        if (!ch) return;
-        
-        const match = ch.match(/^(\d+)/);
-        if (match) {
-            const num = parseInt(match[1], 10);
-            if (num >= 1 && num <= 27) {
-                list[num - 1] = ch;
-            } else {
-                extraChapters.add(ch);
-            }
-        } else {
-            extraChapters.add(ch);
+        if (ch) {
+            presentChapters.add(ch);
         }
     });
 
-    return ["Όλα", ...list.filter(item => item !== null), ...Array.from(extraChapters)];
+    const ordered = [
+        "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ",
+        "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ",
+        "4ο, ΓΕΝΕΤΙΚΗ",
+        "5ο, ΜΕΤΑΒΟΛΙΚΑ ΝΟΣΗΜΑΤΑ",
+        "6ο, ΝΕΟΓΝΟΛΟΓΙΑ",
+        "8ο, ΥΓΡΑ ΚΑΙ ΗΛΕΚΤΡΟΛΥΤΕΣ, ΟΞΕΟΒΑΣΙΚΗ ΙΣΟΡΡΟΠΙΑ"
+    ];
+    
+    const list = [];
+    ordered.forEach(ch => {
+        const numMatch = ch.match(/^(\d+)/);
+        if (numMatch) {
+            const num = numMatch[1];
+            presentChapters.forEach(pCh => {
+                const pNumMatch = pCh.match(/^(\d+)/);
+                if (pNumMatch && pNumMatch[1] === num) {
+                    list.push(pCh);
+                }
+            });
+        }
+    });
+
+    presentChapters.forEach(ch => {
+        const hasPref = ordered.some(o => {
+            const m1 = ch.match(/^(\d+)/);
+            const m2 = o.match(/^(\d+)/);
+            return m1 && m2 && m1[1] === m2[1];
+        });
+        if (!hasPref) {
+            list.push(ch);
+        }
+    });
+
+    const uniqueList = [];
+    list.forEach(ch => {
+        if (!uniqueList.includes(ch)) {
+            uniqueList.push(ch);
+        }
+    });
+
+    return ["Όλα", ...uniqueList];
 }
 
 /**
