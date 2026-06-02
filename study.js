@@ -2,18 +2,22 @@
 let socraticQuestions = [];
 let flashcardQuestions = [];
 let summaryTables = [];
+let tableAnalyses = [];
 let currentRecallIndex = 0;
 let currentStepIndex = 0;
 let isGameCompleted = false;
 let currentQuickIndex = 0;
 let activeSocraticChapter = "Όλα";
 let activeQuickChapter = "Όλα";
+let activeTableChapter = "Όλα";
+let activeTableId = null;
 
 // DOM Elements
 const studyDashboard = document.getElementById('study-dashboard');
 const recallView = document.getElementById('recall-view');
 const tablesView = document.getElementById('tables-view') || document.createElement('div');
 const quickRecallView = document.getElementById('quick-recall-view');
+const tableAnalysisView = document.getElementById('table-analysis-view');
 
 // Active Recall & Socratic Game Elements
 const recallProgress = document.getElementById('recall-progress');
@@ -71,7 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     loadQuestions();
     setupEventListeners();
-    showView('quick-recall');
+    
+    const hash = window.location.hash;
+    if (hash === '#table-analysis') {
+        showView('table-analysis');
+    } else {
+        showView('quick-recall');
+    }
 });
 
 /**
@@ -113,6 +123,9 @@ function loadQuestions() {
     if (typeof summaryTablesData !== 'undefined') {
         summaryTables = Array.isArray(summaryTablesData) ? summaryTablesData : [summaryTablesData];
     }
+    if (typeof tableAnalysesData !== 'undefined') {
+        tableAnalyses = Array.isArray(tableAnalysesData) ? tableAnalysesData : [tableAnalysesData];
+    }
 
     populateTopicSelector();
     populateQuickTopicSelector();
@@ -130,59 +143,60 @@ function getChapterFromCategory(category) {
     return category.trim();
 }
 
-/**
- * Helper to get the chapter of a question object (handles parsed chapter or extracts from category)
- */
 function getQuestionChapter(q) {
-    let rawCh = q.chapter || "";
-    if (!rawCh) {
-        const cat = q.category || "";
-        if (cat.includes("Λήψη Ιστορικού") || cat.includes("Κλινική Εξέταση") || cat.includes("Φυσιολογία") || cat.includes("Καρδιολογία") || cat.includes("Αναπνευστικό") || cat.includes("Επείγουσα")) {
-            rawCh = "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
-        } else if (cat.includes("Αύξηση") || cat.includes("Ανάπτυξη") || cat.includes("Νευροαναπτυξιολογία") || cat.includes("Παιδοφθαλμολογία") || cat.includes("ΩΡΛ") || cat.includes("Νευρολογία") || cat.includes("Αιματολογία") || cat.includes("Γαστρεντερολογία")) {
-            rawCh = "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ";
-        } else {
-            rawCh = getChapterFromCategory(q.category);
-        }
+    if (q.chapter) {
+        return q.chapter;
+    }
+    const cat = (q.category || "").toLowerCase();
+    const ch = (q.chapter || "").toLowerCase();
+    const text = ((q.question || "") + " " + (q.explanation || "")).toLowerCase();
+    const searchStr = cat + " " + ch + " " + text;
+
+    if (searchStr.includes("1ο") || searchStr.includes("ιστορικό") || searchStr.includes("ιστορικο") || searchStr.includes("κλινική εξέταση") || searchStr.includes("κλινικη εξεταση") || searchStr.includes("λήψη ιστορικού") || searchStr.includes("ληψη ιστορικου")) {
+        return "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
+    }
+    if (searchStr.includes("2ο") || searchStr.includes("ανάπτυξη") || searchStr.includes("αναπτυξ") || searchStr.includes("αύξηση") || searchStr.includes("αυξηση") || searchStr.includes("διατροφή") || searchStr.includes("διατροφη") || searchStr.includes("θρέψη") || searchStr.includes("θρεψη") || searchStr.includes("θηλασμός") || searchStr.includes("θηλασμος") || searchStr.includes("βρεφική") || searchStr.includes("βρεφικη")) {
+        return "2ο, ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΤΡΟΦΗ";
+    }
+    if (searchStr.includes("4ο") || searchStr.includes("γενετική") || searchStr.includes("γενετικη") || searchStr.includes("σύνδρομο") || searchStr.includes("συνδρομο") || searchStr.includes("down") || searchStr.includes("turner") || searchStr.includes("klinefelter") || searchStr.includes("μεταβολικά") || searchStr.includes("μεταβολικα") || searchStr.includes("mcad") || searchStr.includes("g6pd") || searchStr.includes("gaucher") || searchStr.includes("pompe") || searchStr.includes("zellweger") || searchStr.includes("niemann") || searchStr.includes("menkes") || searchStr.includes("tay-sachs") || searchStr.includes("τυροσιναιμία") || searchStr.includes("tyrosinemia") || searchStr.includes("hurler") || searchStr.includes("fabry") || searchStr.includes("krabbe")) {
+        return "4ο, ΓΕΝΕΤΙΚΗ ΚΑΙ ΜΕΤΑΒΟΛΙΚΑ ΝΟΣΗΜΑΤΑ";
+    }
+    if (searchStr.includes("5ο") || searchStr.includes("ανοσ") || searchStr.includes("ρευματ") || searchStr.includes("αρθρίτ") || searchStr.includes("αρθριτ") || searchStr.includes("λύκος") || searchStr.includes("λυκος") || searchStr.includes("σελ") || searchStr.includes("kawasaki") || searchStr.includes("αγγειίτ") || searchStr.includes("αγγειιτ") || searchStr.includes("henoch") || searchStr.includes("sjorgren") || searchStr.includes("crohn") || searchStr.includes("κρον") || searchStr.includes("νια")) {
+        return "5ο, ΑΝΟΣΟΛΟΓΙΑ ΚΑΙ ΡΕΥΜΑΤΟΛΟΓΙΑ";
+    }
+    if (searchStr.includes("6ο") || searchStr.includes("νεογν") || searchStr.includes("νεογνολ") || searchStr.includes("αναζωογόνηση νεογνού") || searchStr.includes("αναζωογονηση νεογνου")) {
+        return "6ο, ΝΕΟΓΝΟΛΟΓΙΑ";
+    }
+    if (searchStr.includes("8ο") || searchStr.includes("επείγοντα") || searchStr.includes("επειγοντα") || searchStr.includes("επείγουσα") || searchStr.includes("επειγουσα") || searchStr.includes("shock") || searchStr.includes("καταπληξία") || searchStr.includes("καταπληξια") || searchStr.includes("υγρ") || searchStr.includes("ηλεκτρολ")) {
+        return "8ο, ΠΑΙΔΙΑΤΡΙΚΑ ΕΠΕΙΓΟΝΤΑ";
     }
     
-    // Normalize and strip outer brackets
-    let ch = rawCh.replace(/^\[/, "").replace(/\]$/, "").trim();
-    
-    // Normalize raw chapter text to standard rich names
-    const match = ch.match(/^(\d+)/);
-    if (match) {
-        const num = parseInt(match[1], 10);
-        if (num === 1) return "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
-        if (num === 2) return "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ";
-        if (num === 4) return "4ο, ΓΕΝΕΤΙΚΗ";
-        if (num === 5) return "5ο, ΜΕΤΑΒΟΛΙΚΑ ΝΟΣΗΜΑΤΑ";
-        if (num === 6) return "6ο, ΝΕΟΓΝΟΛΟΓΙΑ";
-        if (num === 8) return "8ο, ΥΓΡΑ ΚΑΙ ΗΛΕΚΤΡΟΛΥΤΕΣ, ΟΞΕΟΒΑΣΙΚΗ ΙΣΟΡΡΟΠΙΑ";
+    // Default fallbacks
+    if (searchStr.includes("λοιμ") || searchStr.includes("εμβολ")) {
+        return "6ο, ΝΕΟΓΝΟΛΟΓΙΑ";
     }
-    return ch;
+    if (searchStr.includes("καρδιο") || searchStr.includes("κυκλοφορ")) {
+        return "8ο, ΠΑΙΔΙΑΤΡΙΚΑ ΕΠΕΙΓΟΝΤΑ";
+    }
+    if (searchStr.includes("γαστρ") || searchStr.includes("ηπατ") || searchStr.includes("εντερ") || searchStr.includes("πυλωρ")) {
+        return "2ο, ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΤΡΟΦΗ";
+    }
+    if (searchStr.includes("νευρο")) {
+        return "2ο, ΑΝΑΠΤΥΞΗ ΚΑΙ ΔΙΑΤΡΟΦΗ";
+    }
+    if (searchStr.includes("ορθοπ") || searchStr.includes("μυοσκελ")) {
+        return "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
+    }
+
+    return "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ";
 }
 
-/**
- * Helper to check if a question's chapter matches the selected chapter.
- * Supports matching prefix numbers (e.g., "1" matches "1ο, ΙΣΤΟΡΙΚΟ...")
- */
+
 function isChapterMatch(questionCh, activeCh) {
     if (activeCh === "Όλα") return true;
-    if (questionCh === activeCh) return true;
-    
-    const m1 = questionCh.match(/^(\d+)/);
-    const m2 = activeCh.match(/^(\d+)/);
-    if (m1 && m2 && m1[1] === m2[1]) {
-        return true;
-    }
-    return false;
+    return questionCh === activeCh;
 }
 
-/**
- * Dynamically builds the ordered list of chapters.
- * Uses rich names directly from the data.
- */
 function getChapterList(questions) {
     const presentChapters = new Set();
     questions.forEach(q => {
@@ -192,47 +206,7 @@ function getChapterList(questions) {
         }
     });
 
-    const ordered = [
-        "1ο, ΙΣΤΟΡΙΚΟ - ΚΛΙΝΙΚΗ ΕΞΕΤΑΣΗ",
-        "2ο, ΑΥΞΗΣΗ ΚΑΙ ΑΝΑΠΤΥΞΗ",
-        "4ο, ΓΕΝΕΤΙΚΗ",
-        "5ο, ΜΕΤΑΒΟΛΙΚΑ ΝΟΣΗΜΑΤΑ",
-        "6ο, ΝΕΟΓΝΟΛΟΓΙΑ",
-        "8ο, ΥΓΡΑ ΚΑΙ ΗΛΕΚΤΡΟΛΥΤΕΣ, ΟΞΕΟΒΑΣΙΚΗ ΙΣΟΡΡΟΠΙΑ"
-    ];
-    
-    const list = [];
-    ordered.forEach(ch => {
-        const numMatch = ch.match(/^(\d+)/);
-        if (numMatch) {
-            const num = numMatch[1];
-            presentChapters.forEach(pCh => {
-                const pNumMatch = pCh.match(/^(\d+)/);
-                if (pNumMatch && pNumMatch[1] === num) {
-                    list.push(pCh);
-                }
-            });
-        }
-    });
-
-    presentChapters.forEach(ch => {
-        const hasPref = ordered.some(o => {
-            const m1 = ch.match(/^(\d+)/);
-            const m2 = o.match(/^(\d+)/);
-            return m1 && m2 && m1[1] === m2[1];
-        });
-        if (!hasPref) {
-            list.push(ch);
-        }
-    });
-
-    const uniqueList = [];
-    list.forEach(ch => {
-        if (!uniqueList.includes(ch)) {
-            uniqueList.push(ch);
-        }
-    });
-
+    const uniqueList = Array.from(presentChapters).sort((a, b) => a.localeCompare(b, 'el'));
     return ["Όλα", ...uniqueList];
 }
 
@@ -687,7 +661,7 @@ function setupEventListeners() {
     // Back to menu buttons
     document.querySelectorAll('.back-to-menu-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            showView('dashboard');
+            window.location.href = 'index.html';
         });
     });
 
@@ -708,10 +682,17 @@ function setupEventListeners() {
     const quickQuestionsDropdownBtn = document.getElementById('quick-questions-dropdown-btn');
     const quickQuestionsOverlay = document.getElementById('quick-questions-overlay');
 
+    const tableChaptersDropdownBtn = document.getElementById('table-chapters-dropdown-btn');
+    const tableChaptersOverlay = document.getElementById('table-chapters-overlay');
+    const tablesDropdownBtn = document.getElementById('tables-dropdown-btn');
+    const tablesDropdownOverlay = document.getElementById('tables-dropdown-overlay');
+
     if (quickChaptersDropdownBtn && quickChaptersOverlay) {
         quickChaptersDropdownBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (quickQuestionsOverlay) quickQuestionsOverlay.classList.add('hidden');
+            if (tableChaptersOverlay) tableChaptersOverlay.classList.add('hidden');
+            if (tablesDropdownOverlay) tablesDropdownOverlay.classList.add('hidden');
             quickChaptersOverlay.classList.toggle('hidden');
         });
     }
@@ -720,7 +701,29 @@ function setupEventListeners() {
         quickQuestionsDropdownBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (quickChaptersOverlay) quickChaptersOverlay.classList.add('hidden');
+            if (tableChaptersOverlay) tableChaptersOverlay.classList.add('hidden');
+            if (tablesDropdownOverlay) tablesDropdownOverlay.classList.add('hidden');
             quickQuestionsOverlay.classList.toggle('hidden');
+        });
+    }
+
+    if (tableChaptersDropdownBtn && tableChaptersOverlay) {
+        tableChaptersDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (quickChaptersOverlay) quickChaptersOverlay.classList.add('hidden');
+            if (quickQuestionsOverlay) quickQuestionsOverlay.classList.add('hidden');
+            if (tablesDropdownOverlay) tablesDropdownOverlay.classList.add('hidden');
+            tableChaptersOverlay.classList.toggle('hidden');
+        });
+    }
+
+    if (tablesDropdownBtn && tablesDropdownOverlay) {
+        tablesDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (quickChaptersOverlay) quickChaptersOverlay.classList.add('hidden');
+            if (quickQuestionsOverlay) quickQuestionsOverlay.classList.add('hidden');
+            if (tableChaptersOverlay) tableChaptersOverlay.classList.add('hidden');
+            tablesDropdownOverlay.classList.toggle('hidden');
         });
     }
 
@@ -731,6 +734,12 @@ function setupEventListeners() {
         }
         if (quickQuestionsOverlay && !quickQuestionsOverlay.contains(e.target) && e.target !== quickQuestionsDropdownBtn && !quickQuestionsDropdownBtn.contains(e.target)) {
             quickQuestionsOverlay.classList.add('hidden');
+        }
+        if (tableChaptersOverlay && !tableChaptersOverlay.contains(e.target) && e.target !== tableChaptersDropdownBtn && !tableChaptersDropdownBtn.contains(e.target)) {
+            tableChaptersOverlay.classList.add('hidden');
+        }
+        if (tablesDropdownOverlay && !tablesDropdownOverlay.contains(e.target) && e.target !== tablesDropdownBtn && !tablesDropdownBtn.contains(e.target)) {
+            tablesDropdownOverlay.classList.add('hidden');
         }
     });
 
@@ -767,21 +776,28 @@ function setupEventListeners() {
  * Switch top-level Portal Views
  */
 function showView(view) {
-    studyDashboard.classList.add('hidden');
-    recallView.classList.add('hidden');
-    tablesView.classList.add('hidden');
+    if (studyDashboard) studyDashboard.classList.add('hidden');
+    if (recallView) recallView.classList.add('hidden');
+    if (tablesView) tablesView.classList.add('hidden');
     if (quickRecallView) quickRecallView.classList.add('hidden');
+    if (tableAnalysisView) tableAnalysisView.classList.add('hidden');
     
     const quickQuestionsOverlay = document.getElementById('quick-questions-overlay');
     if (quickQuestionsOverlay) quickQuestionsOverlay.classList.add('hidden');
     const quickChaptersOverlay = document.getElementById('quick-chapters-overlay');
     if (quickChaptersOverlay) quickChaptersOverlay.classList.add('hidden');
+    const tableChaptersOverlay = document.getElementById('table-chapters-overlay');
+    if (tableChaptersOverlay) tableChaptersOverlay.classList.add('hidden');
+    const tablesDropdownOverlay = document.getElementById('tables-dropdown-overlay');
+    if (tablesDropdownOverlay) tablesDropdownOverlay.classList.add('hidden');
 
     if (view === 'recall') {
-        recallView.classList.remove('hidden');
-        renderChapterFilters(socraticChaptersContainer, socraticQuestions, activeSocraticChapter, handleSocraticChapterSelect);
-        populateTopicSelector();
-        loadFirstMatchingSocraticQuestion();
+        if (recallView) {
+            recallView.classList.remove('hidden');
+            renderChapterFilters(socraticChaptersContainer, socraticQuestions, activeSocraticChapter, handleSocraticChapterSelect);
+            populateTopicSelector();
+            loadFirstMatchingSocraticQuestion();
+        }
     } else if (view === 'quick-recall') {
         if (quickRecallView) {
             quickRecallView.classList.remove('hidden');
@@ -789,10 +805,15 @@ function showView(view) {
             populateQuickTopicSelector();
             loadFirstMatchingQuickQuestion();
         }
+    } else if (view === 'table-analysis') {
+        if (tableAnalysisView) {
+            tableAnalysisView.classList.remove('hidden');
+            initTableAnalysisView();
+        }
     } else if (view === 'tables') {
-        tablesView.classList.remove('hidden');
+        if (tablesView) tablesView.classList.remove('hidden');
     } else {
-        studyDashboard.classList.remove('hidden');
+        if (studyDashboard) studyDashboard.classList.remove('hidden');
     }
 }
 
@@ -1315,5 +1336,330 @@ window.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-arrow').forEach(arrow => {
         arrow.style.transform = 'rotate(0deg)';
     });
+});
+
+/**
+ * Table Analysis Study Mode Functions
+ */
+function initTableAnalysisView() {
+    // If no tables are available, show empty state or placeholder
+    if (tableAnalyses.length === 0) {
+        document.getElementById('table-analysis-title').textContent = "Δεν υπάρχουν διαθέσιμοι πίνακες.";
+        document.getElementById('table-analysis-thead').innerHTML = "";
+        document.getElementById('table-analysis-tbody').innerHTML = "";
+        document.getElementById('table-analysis-detailed-content').innerHTML = "Παρακαλώ προσθέστε πίνακες στο αρχείο table_analyses.js.";
+        document.getElementById('table-analysis-progress').textContent = "Πίνακας 0 από 0";
+        return;
+    }
+
+    renderTableChaptersDropdown();
+    renderTablesDropdown();
+
+    // Load first table matching chapter filter or first table overall
+    if (activeTableId === null) {
+        loadFirstMatchingTable();
+    } else {
+        renderSelectedTable();
+    }
+}
+
+function renderTableChaptersDropdown() {
+    const container = document.getElementById('table-chapters-overlay');
+    if (!container) return;
+
+    container.innerHTML = "";
+    
+    // Get unique list of chapters
+    const chapters = new Set();
+    tableAnalyses.forEach(t => {
+        if (t.chapter) chapters.add(t.chapter.trim());
+    });
+
+    const chapterList = ["Όλα", ...Array.from(chapters)];
+
+    chapterList.forEach(chapter => {
+        const item = document.createElement('button');
+        const isActive = activeTableChapter === chapter;
+        item.className = `overlay-chapter-item ${isActive ? 'active' : ''}`;
+        item.textContent = chapter;
+        item.addEventListener('click', () => {
+            activeTableChapter = chapter;
+            document.getElementById('table-chapters-dropdown-value').textContent = chapter;
+            container.classList.add('hidden');
+            renderTableChaptersDropdown();
+            renderTablesDropdown();
+            loadFirstMatchingTable();
+        });
+        container.appendChild(item);
+    });
+
+    document.getElementById('table-chapters-dropdown-value').textContent = activeTableChapter;
+}
+
+function renderTablesDropdown() {
+    const container = document.getElementById('tables-dropdown-overlay');
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const filteredTables = tableAnalyses.filter(t => {
+        if (activeTableChapter === "Όλα") return true;
+        return t.chapter.trim() === activeTableChapter;
+    });
+
+    filteredTables.forEach((t, index) => {
+        const cleanTitle = t.title.replace(/\*/g, '').trim();
+        const item = document.createElement('button');
+        item.className = `overlay-question-item ${activeTableId === t.tableId ? 'active' : ''}`;
+        item.style.width = '100%';
+        item.innerHTML = `
+            <strong style="color: var(--primary-color); flex-shrink: 0; margin-right: 4px;">Πίν. ${t.tableId}:</strong>
+            <span style="flex-grow: 1; text-align: left;">${cleanTitle}</span>
+        `;
+        item.addEventListener('click', () => {
+            activeTableId = t.tableId;
+            container.classList.add('hidden');
+            renderSelectedTable();
+            renderTablesDropdown();
+        });
+        container.appendChild(item);
+    });
+
+    // Update active label display
+    const label = document.getElementById('tables-dropdown-value');
+    const currentTable = tableAnalyses.find(t => t.tableId === activeTableId);
+    if (currentTable) {
+        label.textContent = `Πίν. ${currentTable.tableId}: ${currentTable.title}`;
+    } else {
+        label.textContent = "Επιλέξτε Πίνακα...";
+    }
+}
+
+function loadFirstMatchingTable() {
+    const matched = tableAnalyses.find(t => {
+        if (activeTableChapter === "Όλα") return true;
+        return t.chapter.trim() === activeTableChapter;
+    });
+
+    if (matched) {
+        activeTableId = matched.tableId;
+        renderSelectedTable();
+        renderTablesDropdown();
+    } else {
+        activeTableId = null;
+        document.getElementById('table-analysis-title').textContent = "Δεν βρέθηκαν πίνακες για αυτό το κεφάλαιο.";
+        document.getElementById('table-analysis-thead').innerHTML = "";
+        document.getElementById('table-analysis-tbody').innerHTML = "";
+        document.getElementById('table-analysis-detailed-content').innerHTML = "";
+        document.getElementById('table-analysis-progress').textContent = "Πίνακας 0 από 0";
+    }
+}
+
+function renderSelectedTable() {
+    const table = tableAnalyses.find(t => t.tableId === activeTableId);
+    if (!table) return;
+
+    // Update title
+    document.getElementById('table-analysis-title').textContent = table.title;
+
+    // Update progress indicator
+    const filtered = tableAnalyses.filter(t => {
+        if (activeTableChapter === "Όλα") return true;
+        return t.chapter.trim() === activeTableChapter;
+    });
+    const currentIndex = filtered.findIndex(t => t.tableId === activeTableId);
+    document.getElementById('table-analysis-progress').textContent = `Πίνακας ${currentIndex + 1} από ${filtered.length}`;
+
+    // Render Headers
+    const thead = document.getElementById('table-analysis-thead');
+    let headerHtml = "<tr>";
+    table.headers.forEach(h => {
+        const headerText = (h && typeof h === 'object') ? h.text : h;
+        headerHtml += `<th>${headerText}</th>`;
+    });
+    headerHtml += "</tr>";
+    thead.innerHTML = headerHtml;
+
+    // Render Rows
+    const tbody = document.getElementById('table-analysis-tbody');
+    tbody.innerHTML = "";
+    
+    // Create viewport-relative global tooltip container if not present
+    let globalTooltip = document.getElementById('global-table-cell-tooltip');
+    if (!globalTooltip) {
+        globalTooltip = document.createElement('div');
+        globalTooltip.id = 'global-table-cell-tooltip';
+        globalTooltip.className = 'cell-tooltip';
+        globalTooltip.style.position = 'fixed';
+        globalTooltip.style.zIndex = '10000';
+        globalTooltip.style.display = 'none';
+        globalTooltip.style.pointerEvents = 'none';
+        globalTooltip.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+        document.body.appendChild(globalTooltip);
+    }
+    
+    // Calculate rowspans for the first column to merge identical consecutive cells
+    const rowSpans = [];
+    for (let i = 0; i < table.rows.length; i++) {
+        rowSpans[i] = 1;
+    }
+    let currentSpanIndex = 0;
+    for (let i = 1; i < table.rows.length; i++) {
+        const prevRow = table.rows[currentSpanIndex];
+        const currRow = table.rows[i];
+        
+        let prevText = "";
+        let currText = "";
+        
+        if (Array.isArray(prevRow)) {
+            prevText = prevRow[0] ? (prevRow[0].value !== undefined ? prevRow[0].value : prevRow[0].text) : "";
+        } else {
+            const firstHeaderId = (table.headers[0] && typeof table.headers[0] === 'object') ? table.headers[0].id : table.headers[0];
+            prevText = prevRow[firstHeaderId] ? (prevRow[firstHeaderId].value !== undefined ? prevRow[firstHeaderId].value : prevRow[firstHeaderId].text) : "";
+        }
+        
+        if (Array.isArray(currRow)) {
+            currText = currRow[0] ? (currRow[0].value !== undefined ? currRow[0].value : currRow[0].text) : "";
+        } else {
+            const firstHeaderId = (table.headers[0] && typeof table.headers[0] === 'object') ? table.headers[0].id : table.headers[0];
+            currText = currRow[firstHeaderId] ? (currRow[firstHeaderId].value !== undefined ? currRow[firstHeaderId].value : currRow[firstHeaderId].text) : "";
+        }
+        
+        if (prevText && currText && prevText.trim() === currText.trim()) {
+            rowSpans[currentSpanIndex]++;
+            rowSpans[i] = 0;
+        } else {
+            currentSpanIndex = i;
+        }
+    }
+    
+    table.rows.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        
+        const cellsToRender = [];
+        if (Array.isArray(row)) {
+            row.forEach(cell => cellsToRender.push(cell));
+        } else {
+            table.headers.forEach(h => {
+                const headerId = (h && typeof h === 'object') ? h.id : h;
+                cellsToRender.push(row[headerId]);
+            });
+        }
+
+        cellsToRender.forEach((cell, colIndex) => {
+            if (colIndex === 0 && rowSpans[rowIndex] === 0) {
+                return; // Skip rendering merged cell
+            }
+            
+            const td = document.createElement('td');
+            td.className = "interactive-cell";
+            if (colIndex === 0 && rowSpans[rowIndex] > 1) {
+                td.rowSpan = rowSpans[rowIndex];
+            }
+
+            if (!cell) {
+                td.textContent = "";
+                tr.appendChild(td);
+                return;
+            }
+            
+            const cellText = cell.value !== undefined ? cell.value : cell.text;
+            td.textContent = cellText;
+
+            // Handle mouse entering cell (hover)
+            td.addEventListener('mouseenter', () => {
+                const cleanHeader = cellText ? cellText.split('(')[0].trim() : "";
+                globalTooltip.innerHTML = `
+                    <div class="cell-tooltip-header">📌 ${cleanHeader}</div>
+                    ${parseMarkdown(cell.hoverText || "")}
+                `;
+                globalTooltip.style.display = 'block';
+                
+                // Position relative to cell bounding rect
+                const rect = td.getBoundingClientRect();
+                let left = rect.left + rect.width / 2 - 140;
+                let top = rect.bottom + 8;
+                
+                // Keep inside screen viewport
+                if (left < 10) left = 10;
+                if (left + 290 > window.innerWidth) {
+                    left = window.innerWidth - 290;
+                }
+                
+                // Auto position above cell if it overflows screen bottom
+                const tooltipHeight = globalTooltip.offsetHeight || 180;
+                if (top + tooltipHeight > window.innerHeight) {
+                    top = rect.top - tooltipHeight - 8;
+                }
+                if (top < 10) top = 10;
+                
+                globalTooltip.style.left = left + 'px';
+                globalTooltip.style.top = top + 'px';
+                globalTooltip.style.opacity = '1';
+                globalTooltip.style.visibility = 'visible';
+                
+                // Update bottom details box dynamically on hover so users can read it easily
+                const detailsContainer = document.getElementById('table-cell-details-box');
+                if (detailsContainer) {
+                    detailsContainer.style.display = 'block';
+                    detailsContainer.style.borderColor = '#ef4444';
+                    detailsContainer.innerHTML = `
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <span>📌 ${cellText}</span>
+                        </div>
+                        <div class="cell-details-body" style="font-size: 0.98rem; line-height: 1.6; color: var(--text-primary);">
+                            ${parseMarkdown(cell.hoverText || "")}
+                        </div>
+                    `;
+                }
+            });
+
+            // Handle mouse leaving cell
+            td.addEventListener('mouseleave', () => {
+                globalTooltip.style.display = 'none';
+                globalTooltip.style.opacity = '0';
+                globalTooltip.style.visibility = 'hidden';
+            });
+
+            // Handle click/tap event for detailed display lock and scroll
+            td.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                document.querySelectorAll('.interactive-cell').forEach(c => {
+                    c.classList.remove('active-cell-selected');
+                });
+                td.classList.add('active-cell-selected');
+
+                const detailsContainer = document.getElementById('table-cell-details-box');
+                if (detailsContainer) {
+                    detailsContainer.style.display = 'block';
+                    detailsContainer.style.borderColor = '#ef4444';
+                    detailsContainer.innerHTML = `
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <span>📌 ${cellText}</span>
+                        </div>
+                        <div class="cell-details-body" style="font-size: 0.98rem; line-height: 1.6; color: var(--text-primary);">
+                            ${parseMarkdown(cell.hoverText || "")}
+                        </div>
+                    `;
+                    detailsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    // Render Detailed Analysis
+    const analysisBox = document.getElementById('table-analysis-detailed-content');
+    if (analysisBox) {
+        analysisBox.innerHTML = parseMarkdown(table.detailedAnalysis || "");
+    }
+}
+
+// Global click handler to close selections on tapping anywhere else
+document.addEventListener('click', () => {
+    document.querySelectorAll('.interactive-cell').forEach(c => c.classList.remove('active-cell-selected'));
 });
 

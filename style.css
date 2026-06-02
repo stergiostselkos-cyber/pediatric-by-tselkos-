@@ -2168,3 +2168,225 @@ body.light-theme .modal-chapters-grid::-webkit-scrollbar-thumb {
     color: #ff7300 !important;
     font-weight: 600;
 }
+
+/* Interactive Table Analysis styling */
+.interactive-med-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.interactive-med-table th {
+    background: var(--primary-glow);
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--text-primary);
+    font-weight: 700;
+    padding: 16px;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.interactive-med-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+    position: relative;
+    vertical-align: top;
+}
+
+.interactive-cell {
+    cursor: pointer;
+}
+
+.interactive-cell:hover, .interactive-cell.active-hover {
+    background: var(--option-hover) !important;
+    color: var(--primary-color);
+}
+
+/* Dedicated Cell Details Box styling */
+#table-cell-details-box {
+    margin-top: 16px;
+    background: var(--card-bg) !important;
+    border: 2px solid var(--primary-color) !important;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow-main), 0 0 15px var(--primary-glow);
+    transition: all 0.3s ease;
+}
+
+.active-cell-selected {
+    background: rgba(99, 102, 241, 0.15) !important;
+    border: 2.5px solid var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    font-weight: 700 !important;
+}
+
+body.light-theme .active-cell-selected {
+    background: rgba(79, 70, 229, 0.12) !important;
+}
+
+/* Smooth horizontal scrollbar styling */
+.table-analysis-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-analysis-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+}
+
+.table-analysis-container::-webkit-scrollbar-thumb {
+    background: var(--primary-glow);
+    border-radius: 4px;
+}
+
+.table-analysis-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Cell Tooltip Styling */
+.cell-tooltip {
+    position: absolute;
+    z-index: 1000;
+    width: 280px;
+    max-width: 90vw;
+    background: var(--card-bg);
+    border: 1.5px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s ease;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    line-height: 1.45;
+    text-align: left;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Light theme backdrop adjust */
+body.light-theme .cell-tooltip {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.cell-tooltip-header {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 6px;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cell-tooltip p {
+    margin-bottom: 6px;
+}
+.cell-tooltip p:last-child {
+    margin-bottom: 0;
+}
+
+.cell-tooltip strong {
+    color: var(--primary-color);
+}
+
+/* Tooltip directions & horizontal alignment */
+.cell-tooltip.tooltip-top {
+    bottom: 105%;
+    margin-bottom: 4px;
+}
+.cell-tooltip.tooltip-bottom {
+    top: 105%;
+    margin-top: 4px;
+}
+
+.cell-tooltip.tooltip-center-align {
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+}
+.cell-tooltip.tooltip-top.tooltip-center-align {
+    transform: translateX(-50%) translateY(4px) scale(0.95);
+}
+.cell-tooltip.tooltip-bottom.tooltip-center-align {
+    transform: translateX(-50%) translateY(-4px) scale(0.95);
+}
+
+.cell-tooltip.tooltip-right-align {
+    left: 0;
+    transform: scale(0.95);
+}
+.cell-tooltip.tooltip-top.tooltip-right-align {
+    transform: translateY(4px) scale(0.95);
+}
+.cell-tooltip.tooltip-bottom.tooltip-right-align {
+    transform: translateY(-4px) scale(0.95);
+}
+
+.cell-tooltip.tooltip-left-align {
+    right: 0;
+    left: auto;
+    transform: scale(0.95);
+}
+.cell-tooltip.tooltip-top.tooltip-left-align {
+    transform: translateY(4px) scale(0.95);
+}
+.cell-tooltip.tooltip-bottom.tooltip-left-align {
+    transform: translateY(-4px) scale(0.95);
+}
+
+/* Visibility triggers on hover/active states */
+.interactive-cell:hover .cell-tooltip,
+.interactive-cell.active-hover .cell-tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.interactive-cell:hover .cell-tooltip.tooltip-center-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-center-align {
+    transform: translateX(-50%) scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-top.tooltip-center-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-top.tooltip-center-align {
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-bottom.tooltip-center-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-bottom.tooltip-center-align {
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.interactive-cell:hover .cell-tooltip.tooltip-right-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-right-align {
+    transform: scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-top.tooltip-right-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-top.tooltip-right-align {
+    transform: translateY(0) scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-bottom.tooltip-right-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-bottom.tooltip-right-align {
+    transform: translateY(0) scale(1);
+}
+
+.interactive-cell:hover .cell-tooltip.tooltip-left-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-left-align {
+    transform: scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-top.tooltip-left-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-top.tooltip-left-align {
+    transform: translateY(0) scale(1);
+}
+.interactive-cell:hover .cell-tooltip.tooltip-bottom.tooltip-left-align,
+.interactive-cell.active-hover .cell-tooltip.tooltip-bottom.tooltip-left-align {
+    transform: translateY(0) scale(1);
+}

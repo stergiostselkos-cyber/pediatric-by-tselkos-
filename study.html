@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="el">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,292 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- CSS Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css">
+    <style>
+    /* Animation for Author Tag */
+    @keyframes tselkosGlow {
+      0% {
+        transform: scale(1);
+        text-shadow: 0 0 8px rgba(239, 68, 68, 0.9), 0 0 4px rgba(220, 38, 38, 0.8);
+      }
+      50% {
+        transform: scale(1.08);
+        text-shadow: 0 0 16px rgba(239, 68, 68, 1), 0 0 8px rgba(239, 68, 68, 0.8), 0 0 20px rgba(220, 38, 38, 0.9);
+      }
+      100% {
+        transform: scale(1);
+        text-shadow: 0 0 8px rgba(239, 68, 68, 0.9), 0 0 4px rgba(220, 38, 38, 0.8);
+      }
+    }
+    .author-tag {
+      display: inline-block !important;
+      animation: tselkosGlow 2s infinite ease-in-out !important;
+    }
+
+    /* Quick Recall Section styling overrides */
+    #quick-recall-view {
+      background: #7f1d1d !important; /* Outer container is a rich, dark matte red/burgundy to avoid eye strain */
+      border: 2px solid #991b1b !important;
+      padding: 24px !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 40px rgba(127, 29, 29, 0.3) !important;
+    }
+
+    /* Subfields inside outer red container have very soft red background */
+    #quick-recall-view .large-dropdown-select-btn {
+      background: #fef2f2 !important; /* very soft red */
+      border: 2px solid #fca5a5 !important;
+      color: #000000 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+    }
+    #quick-recall-view .large-dropdown-select-btn .dropdown-label {
+      color: #ef4444 !important; /* original red color */
+      font-weight: 900 !important; /* more bold */
+      opacity: 1 !important;
+      font-size: 0.85rem !important;
+      letter-spacing: 0.5px !important;
+    }
+    #quick-recall-view .large-dropdown-select-btn .dropdown-value {
+      color: #000000 !important;
+      font-weight: 800 !important; /* more bold */
+      font-size: 1.05rem !important;
+    }
+    #quick-recall-view .large-dropdown-select-btn .dropdown-arrow {
+      color: #ef4444 !important;
+    }
+
+    /* Field 4: Question display box formatted with a prominent red banner and clean white overlay */
+    #quick-recall-view .topic-title-header {
+      background: #fef2f2 !important; /* very soft red */
+      border: 2px solid #fca5a5 !important;
+      border-left: 6px solid #ef4444 !important;
+      border-radius: 14px !important;
+      padding: 20px !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+      margin: 16px 0 !important;
+    }
+    #quick-recall-view .question-label-span {
+      font-size: 1.25rem !important;
+      font-weight: 900 !important;
+      color: #ef4444 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      margin-bottom: 8px !important;
+      display: block !important;
+    }
+    #quick-recall-view .question-inner-card {
+      background: transparent !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+    #quick-recall-view #quick-recall-question {
+      color: #000000 !important;
+      font-weight: 850 !important;
+      font-size: 1.15rem !important;
+      line-height: 1.65 !important;
+      margin: 0 !important;
+      text-align: justify !important;
+      text-justify: inter-word !important;
+    }
+
+    /* Field 5, 6, 7: Active Card Container customized */
+    #quick-recall-view .recall-card-container {
+      background: #fef2f2 !important; /* very soft red */
+      border: 2px solid #fca5a5 !important;
+      border-radius: 16px !important;
+      padding: 24px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05) !important;
+    }
+
+    /* Field 5: Correct Answer Box */
+    #quick-recall-view .correct-answer-box {
+      background: rgba(239, 68, 68, 0.06) !important;
+      border: 1px solid rgba(239, 68, 68, 0.2) !important;
+      color: #b91c1c !important;
+      border-radius: 12px !important;
+      padding: 16px 20px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+    }
+    #quick-recall-view .correct-answer-box h4 {
+      color: #ef4444 !important;
+      font-weight: 900 !important;
+      font-size: 0.95rem !important;
+      margin-bottom: 6px !important;
+    }
+    #quick-recall-view #quick-correct-answer-text {
+      color: #000000 !important;
+      font-weight: 750 !important;
+      font-size: 1.05rem !important;
+      line-height: 1.6 !important;
+    }
+
+    /* Field 6: Mnemonic Box */
+    #quick-recall-view .mnemonic-box {
+      background: rgba(234, 179, 8, 0.06) !important;
+      border: 1px solid rgba(234, 179, 8, 0.2) !important;
+      border-radius: 12px !important;
+      padding: 16px 20px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+    }
+    #quick-recall-view .mnemonic-header h5 {
+      color: #ca8a04 !important;
+      font-weight: 900 !important;
+    }
+    #quick-recall-view #quick-mnemonic-text {
+      color: #000000 !important;
+      font-weight: 750 !important;
+      font-style: italic !important;
+    }
+
+    /* Field 7: Explanation Wrapper */
+    #quick-recall-view .explanation-wrapper {
+      background: transparent !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+    #quick-recall-view .explanation-wrapper h4 {
+      color: #ef4444 !important;
+      font-weight: 900 !important;
+      border-bottom: 1.5px solid rgba(239, 68, 68, 0.15) !important;
+      padding-bottom: 8px !important;
+      margin-bottom: 12px !important;
+      font-size: 1.1rem !important;
+    }
+    #quick-recall-view #quick-recall-explanation-content {
+      color: #000000 !important;
+      font-weight: 600 !important;
+      font-size: 0.98rem !important;
+      line-height: 1.65 !important;
+    }
+    #quick-recall-view #quick-recall-explanation-content p, 
+    #quick-recall-view #quick-recall-explanation-content li {
+      color: #000000 !important;
+      font-weight: 600 !important;
+      text-align: justify !important;
+    }
+    #quick-recall-view #quick-recall-explanation-content strong {
+      color: #b91c1c !important;
+      font-weight: 850 !important;
+    }
+
+    /* Field 8: Navigation bar styles adaptation */
+    #quick-recall-view .quiz-navigation .btn-secondary {
+      background: #ffffff !important;
+      border: 1px solid #fca5a5 !important;
+      color: #ef4444 !important;
+      font-weight: 700 !important;
+    }
+    #quick-recall-view .quiz-navigation .btn-primary {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    /* Table Analysis Section styling overrides */
+    #table-analysis-view {
+      background: #0f766e !important;
+      border: 2px solid #0d9488 !important;
+      padding: 24px !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 40px rgba(15, 118, 110, 0.35) !important;
+    }
+
+    #table-analysis-view .large-dropdown-select-btn {
+      background: #ffffff !important;
+      border: 2px solid #0d9488 !important;
+      color: #000000 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+    }
+    #table-analysis-view .large-dropdown-select-btn .dropdown-label {
+      color: #0f766e !important;
+      font-weight: 900 !important;
+      opacity: 1 !important;
+      font-size: 0.85rem !important;
+      letter-spacing: 0.5px !important;
+    }
+    #table-analysis-view .large-dropdown-select-btn .dropdown-value {
+      color: #000000 !important;
+      font-weight: 800 !important;
+      font-size: 1.05rem !important;
+    }
+    #table-analysis-view .large-dropdown-select-btn .dropdown-arrow {
+      color: #0f766e !important;
+    }
+
+    #table-analysis-view .topic-title-header {
+      background: #ffffff !important;
+      border: 2px solid #0d9488 !important;
+      border-left: 6px solid #0f766e !important;
+      border-radius: 14px !important;
+      padding: 20px !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+      margin: 16px 0 !important;
+    }
+    #table-analysis-view .topic-title-header h2 {
+      color: #0f766e !important;
+      font-weight: 900 !important;
+      font-size: 1.25rem !important;
+      margin: 0 !important;
+    }
+
+    #table-analysis-view .recall-header {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      margin-bottom: 14px !important;
+    }
+    #table-analysis-view .recall-header .back-to-menu-btn {
+      background: #ffffff !important;
+      border: 1px solid #0d9488 !important;
+      color: #0f766e !important;
+      font-weight: 700 !important;
+    }
+    #table-analysis-view #table-analysis-progress {
+      color: #ffffff !important;
+    }
+
+    /* Table visual formatting inside container */
+    #table-analysis-view .table-analysis-container {
+      background: #f0fdfa !important;
+      border: 2px solid #0d9488 !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    }
+    #table-analysis-view .interactive-med-table {
+      background: #f0fdfa !important;
+    }
+    #table-analysis-view .interactive-med-table th {
+      background: #0d9488 !important;
+      color: #ffffff !important;
+      font-size: 0.85rem !important;
+      font-weight: 800 !important;
+      padding: 10px 14px !important;
+      border: 1px solid rgba(15, 118, 110, 0.3) !important;
+      border-bottom: 2px solid #0f766e !important;
+    }
+    #table-analysis-view .interactive-med-table td {
+      background: #f0fdfa !important;
+      color: #000000 !important;
+      font-size: 0.8rem !important;
+      font-weight: 800 !important;
+      padding: 10px 14px !important;
+      border: 1px solid rgba(15, 118, 110, 0.25) !important;
+      line-height: 1.45 !important;
+    }
+    #table-analysis-view .interactive-med-table tr:hover td {
+      background: #e0f2fe !important;
+    }
+    #table-analysis-view .interactive-cell:hover, 
+    #table-analysis-view .interactive-cell.active-hover {
+      background: #ccfbf1 !important;
+      color: #0f766e !important;
+    }
+    #table-analysis-view .active-cell-selected {
+      background: #99f6e4 !important;
+      border: 2.5px solid #0f766e !important;
+      color: #0f766e !important;
+    }
+    </style>
 </head>
 <body class="dark-theme">
     <div class="app-container">
@@ -47,233 +332,17 @@
 
         <!-- Main Workspace -->
         <main class="app-main">
-            <!-- 1. Central Dashboard Menu (Default View) -->
-            <section id="study-dashboard" class="view-panel">
-                <div class="section-title">
-                    <h2>Μελέτη & Ανάπτυξη Θεωρίας</h2>
-                    <p>Επιλέξτε ένα από τα παρακάτω εκπαιδευτικά εργαλεία:</p>
-                </div>
 
-                <div class="study-grid">
-                    <!-- Active Recall Card -->
-                    <div class="study-card active-card" data-target="recall">
-                        <div class="study-card-header">
-                            <span class="study-card-badge">Κουίζ</span>
-                            <div class="study-card-icon recall-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9zM13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Μάθηση των Ερωτήσεων Ανάπτυξης</h3>
-                        <p>Σωκρατικός διάλογος για την ενεργητική εκμάθηση της θεωρίας βήμα-βήμα.</p>
-                        <span class="study-card-action">Άνοιγμα Εφαρμογής &rarr;</span>
-                    </div>
-
-                    <!-- Direct Flashcard Card -->
-                    <div class="study-card active-card" data-target="quick-recall">
-                        <div class="study-card-header">
-                            <span class="study-card-badge" style="background: rgba(249, 115, 22, 0.1); color: #ff7300; border: 1px solid rgba(249, 115, 22, 0.2);">Μελέτη</span>
-                            <div class="study-card-icon" style="background: rgba(249, 115, 22, 0.1); color: #ff7300;">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Ερωτήσεις Ανάπτυξης</h3>
-                        <p>Άμεση εμφάνιση της ερώτησης και της απάντησης με το πάτημα ενός κουμπιού για γρήγορη επανάληψη.</p>
-                        <span class="study-card-action" style="color: #ff7300;">Γρήγορη Μελέτη &rarr;</span>
-                    </div>
-
-                    
-
-                    <!-- Locked Cases Card (Future) -->
-                    <div class="study-card locked">
-                        <div class="study-card-header">
-                            <span class="study-card-badge locked-badge">Προσεχώς</span>
-                            <div class="study-card-icon locked-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Κλινικά Περιστατικά</h3>
-                        <p>Αναλυτική μελέτη κλινικών περιπτώσεων με διαφορική διάγνωση, εξετάσεις και θεραπευτικά σχήματα.</p>
-                        <span class="study-card-action-locked">Κλειδωμένο</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. Active Recall Flashcards View (Hidden by default) -->
-            <section id="recall-view" class="view-panel hidden">
-                <div class="recall-header">
-                    <button class="back-to-menu-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
-                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Μενού Μελέτης
-                    </button>
-                    <span id="recall-progress">Θέμα 0 από 0</span>
-                </div>
-
-                <!-- Chapter Selector Filters -->
-                <div id="socratic-chapters-container" class="chapter-select-container">
-                    <!-- Chapters populated dynamically in study.js -->
-                </div>
-
-                <!-- Topic Selector Pills -->
-                <div id="socratic-pills-container" class="topic-pills-container">
-                    <!-- Pills populated dynamically in study.js -->
-                </div>
-
-                <!-- Topic Title Header -->
-                <div class="topic-title-header">
-                    <div class="category-tag-wrapper">
-                        <span id="recall-category" class="badge">Παιδιατρική</span>
-                    </div>
-                    <h2 id="recall-question">Φόρτωση ερώτησης...</h2>
-                </div>
-
-                <!-- Active Card Container -->
-                <div class="recall-card-container">
-
-                    <!-- Socratic Interactive Panel -->
-                    <div id="socratic-panel" class="socratic-panel">
-                        <!-- Progress Area -->
-                        <div class="socratic-progress-wrapper" style="margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">
-                                <span id="socratic-step-text">Βήμα 1 από 3</span>
-                                <span id="socratic-status-tag" style="color: #ffaa00; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Σωκρατικός Διάλογος</span>
-                            </div>
-                            <div class="progress-bar-container" style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden; width: 100%;">
-                                <div id="socratic-progress-fill" class="progress-bar-fill" style="width: 33%; height: 100%; background: linear-gradient(90deg, var(--primary-color), var(--primary-glow)); transition: width 0.3s ease;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Sub-question with Socrates Avatar -->
-                        <div class="socratic-question-wrapper" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px;">
-                            <!-- Socrates Avatar SVG -->
-                            <div class="socratic-avatar" style="flex-shrink: 0; width: 64px; height: 64px;">
-                                <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Stylized bust of Socrates with beard and toga -->
-                                    <circle cx="50" cy="40" r="16" fill="#e2e8f0" />
-                                    <!-- Beard -->
-                                    <path d="M34 40 C34 56, 50 66, 50 66 C50 66, 66 56, 66 40 C66 36, 64 32, 50 32 C36 32, 34 36, 34 40 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
-                                    <!-- Hair/Wreath -->
-                                    <path d="M32 36 C32 20, 68 20, 68 36" stroke="var(--primary-color)" stroke-width="5" stroke-linecap="round"/>
-                                    <path d="M35 32 C35 24, 65 24, 65 32" stroke="#f1f5f9" stroke-width="4" stroke-linecap="round"/>
-                                    <!-- Eyes -->
-                                    <circle cx="43" cy="38" r="2" fill="#0f172a" />
-                                    <circle cx="57" cy="38" r="2" fill="#0f172a" />
-                                    <!-- Nose -->
-                                    <path d="M50 38 L50 44 L48 44" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <!-- Mouth hidden under beard -->
-                                    <path d="M47 48 Q50 50 53 48" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
-                                    <!-- Toga / Body -->
-                                    <path d="M25 80 C25 65, 35 56, 50 56 C65 56, 75 65, 75 80 L75 85 L25 85 Z" fill="#4f46e5" stroke="var(--primary-color)" stroke-width="2"/>
-                                    <!-- Gold Wreath details -->
-                                    <path d="M40 22 L42 26 M60 22 L58 26 M50 20 L50 24" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
-                            </div>
-                            <div class="socratic-question-box" style="flex-grow: 1;">
-                                <div class="speech-pointer"></div>
-                                <p id="socratic-sub-question" style="margin: 0; color: var(--text-primary); font-size: 1.05rem; font-weight: 600; line-height: 1.6;">Φόρτωση υπο-ερώτησης...</p>
-                            </div>
-                        </div>
-
-                        <!-- Options Checkboxes Grid -->
-                        <div id="socratic-options-container" class="socratic-options-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
-                            <!-- Dynamically loaded custom checkbox options -->
-                        </div>
-
-                        <!-- Feedback Panel -->
-                        <div id="socratic-feedback" class="socratic-feedback hidden" style="margin-bottom: 24px; transition: all 0.3s ease;">
-                            <!-- Banner loaded dynamically -->
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="socratic-actions" style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; margin-bottom: 10px;">
-                            <button id="socratic-submit-btn" class="btn btn-primary-glow" style="padding: 10px 24px; min-width: 160px;">
-                                Υποβολή Απάντησης
-                            </button>
-                            <button id="socratic-next-step-btn" class="btn btn-success hidden" style="background: var(--success-color); border-color: var(--success-color); padding: 10px 24px; color: #fff; min-width: 160px;">
-                                Επόμενο Βήμα &rarr;
-                            </button>
-                            <button id="socratic-restart-btn" class="btn btn-danger hidden" style="background: #ef4444; border-color: #ef4444; padding: 10px 24px; color: #fff; min-width: 220px; font-weight: 600;">
-                                🔄 Επανεκκίνηση από Βήμα 1
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Revealed Answer Block (Hidden initially) -->
-                    <div id="revealed-block" class="revealed-block collapsed">
-                        <!-- Correct Answer Box -->
-                        <div class="correct-answer-box">
-                            <h4>Σωστή Απάντηση:</h4>
-                            <p id="correct-answer-text">Φόρτωση σωστής επιλογής...</p>
-                        </div>
-
-                        <!-- Mnemonic Tip Box -->
-                        <div id="mnemonic-box" class="mnemonic-box">
-                            <div class="mnemonic-header">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #eab308;">
-                                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <h5>Μνημονικό Tip / Σημείο-Κλειδί</h5>
-                            </div>
-                            <p id="mnemonic-text">Φόρτωση tip...</p>
-                        </div>
-
-                        <!-- Full Explanation Block -->
-                        <div class="explanation-wrapper">
-                            <h4>Ανάλυση &amp; Θεωρία</h4>
-                            <div id="recall-explanation-content" class="explanation-content">
-                                <!-- Rendered Markdown content -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer Navigation -->
-                <div class="quiz-navigation">
-                    <button id="recall-prev-btn" class="btn btn-secondary btn-icon" disabled>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Προηγούμενο</span>
-                    </button>
-                    <button id="recall-random-btn" class="btn btn-secondary btn-icon" style="padding: 10px 14px;">
-                        <span>🎲 Τυχαίο</span>
-                    </button>
-                    <button id="recall-next-btn" class="btn btn-primary btn-icon">
-                        <span>Επόμενο</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-
-            </section>
 
             <!-- 2b. Quick Recall Flashcards View (Hidden by default) -->
             <section id="quick-recall-view" class="view-panel hidden">
-                <div class="recall-header" style="border-color: rgba(249, 115, 22, 0.25);">
-                    <a href="index.html" class="back-to-menu-btn" style="text-decoration: none; display: inline-flex; align-items: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
-                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Αρχική
-                    </a>
-                    <span id="quick-recall-progress" style="color: #ff7300; font-weight: 600; font-size: 0.9rem;">Θέμα 0 από 0</span>
-                </div>
 
                 <!-- Chapter Selector Filters -->
                 <div class="quick-dropdown-wrapper" style="position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 14px; margin-bottom: 8px;">
-                    <button id="quick-chapters-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(249, 115, 22, 0.25);">
-                        <span class="dropdown-label" style="color: #ff7300; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Κεφάλαιο</span>
+                    <button id="quick-chapters-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(239, 68, 68, 0.25);">
+                        <span class="dropdown-label" style="color: #ef4444; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Κεφάλαιο</span>
                         <span id="quick-chapters-dropdown-value" class="dropdown-value" style="font-weight: 600; font-size: 1rem; color: var(--text-primary); text-align: left; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding-right: 24px;">Όλα</span>
-                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #ff7300;">
+                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #ef4444;">
                             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
@@ -285,10 +354,10 @@
 
                 <!-- Topic Selector Dropdown and Overlay -->
                 <div class="quick-dropdown-wrapper" style="position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; margin-bottom: 8px;">
-                    <button id="quick-questions-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(249, 115, 22, 0.25);">
-                        <span class="dropdown-label" style="color: #ff7300; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Ερώτηση</span>
+                    <button id="quick-questions-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(239, 68, 68, 0.25);">
+                        <span class="dropdown-label" style="color: #ef4444; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Ερώτηση</span>
                         <span id="quick-questions-dropdown-value" class="dropdown-value" style="font-weight: 600; font-size: 1.05rem; color: var(--text-primary); text-align: left; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding-right: 24px;">Φόρτωση ερώτησης...</span>
-                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #ff7300;">
+                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #ef4444;">
                             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
@@ -300,17 +369,17 @@
 
                 <!-- Topic Title Header -->
                 <div class="topic-title-header">
-                    <div class="category-tag-wrapper">
-                        <span id="quick-recall-category" class="badge" style="color: #ff7300; background: rgba(249, 115, 22, 0.08); border-color: rgba(249, 115, 22, 0.25);">Παιδιατρική</span>
+                    <span class="question-label-span">Ερώτηση:</span>
+                    <div class="question-inner-card">
+                        <h2 id="quick-recall-question">Φόρτωση ερώτησης...</h2>
                     </div>
-                    <h2 id="quick-recall-question">Φόρτωση ερώτησης...</h2>
                 </div>
 
                 <!-- Active Card Container -->
-                <div class="recall-card-container" style="border-color: rgba(249, 115, 22, 0.15);">
+                <div class="recall-card-container" style="border: 2px solid rgba(239, 68, 68, 0.3) !important;">
                     <!-- Reveal Action Button Container -->
                     <div id="quick-reveal-btn-container" class="reveal-action-container">
-                        <button id="quick-reveal-btn" class="btn btn-primary" style="background: linear-gradient(135deg, #ff7300 0%, #ff5500 100%); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35); padding: 16px 36px; font-size: 1.1rem; border-radius: 12px; font-weight: 700;">
+                        <button id="quick-reveal-btn" class="btn btn-primary" style="background: #ef4444 !important; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35); padding: 16px 36px; font-size: 1.1rem; border-radius: 12px; font-weight: 700; border: none;">
                             <span>👀 Εμφάνιση Απάντησης</span>
                         </button>
                     </div>
@@ -318,8 +387,8 @@
                     <!-- Revealed Answer Block (Hidden initially) -->
                     <div id="quick-revealed-block" class="revealed-block collapsed">
                         <!-- Correct Answer Box -->
-                        <div class="correct-answer-box" style="border-color: rgba(249, 115, 22, 0.25); background: rgba(249, 115, 22, 0.05); color: #ff7300;">
-                            <h4 style="color: #ff7300; opacity: 0.9;">Σύντομη Απάντηση:</h4>
+                        <div class="correct-answer-box" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); color: #ef4444;">
+                            <h4 style="color: #ef4444; opacity: 0.9;">Σύντομη Απάντηση:</h4>
                             <p id="quick-correct-answer-text" style="color: var(--text-primary);">Φόρτωση σύντομης απάντησης...</p>
                         </div>
 
@@ -336,7 +405,7 @@
 
                         <!-- Full Explanation Block -->
                         <div class="explanation-wrapper">
-                            <h4 style="color: #ff7300; border-color: rgba(249, 115, 22, 0.15);">Ανάλυση &amp; Θεωρία</h4>
+                            <h4 style="color: #ef4444; border-color: rgba(239, 68, 68, 0.15);">Ανάλυση &amp; Θεωρία</h4>
                             <div id="quick-recall-explanation-content" class="explanation-content">
                                 <!-- Rendered Markdown content -->
                             </div>
@@ -355,7 +424,7 @@
                     <button id="quick-recall-random-btn" class="btn btn-secondary btn-icon" style="padding: 10px 14px;">
                         <span>🎲 Τυχαίο</span>
                     </button>
-                    <button id="quick-recall-next-btn" class="btn btn-primary btn-icon" style="background: linear-gradient(135deg, #ff7300 0%, #ff5500 100%); box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35); border: none;">
+                    <button id="quick-recall-next-btn" class="btn btn-primary btn-icon" style="background: #ef4444 !important; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35); border: none;">
                         <span>Επόμενο</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -365,6 +434,83 @@
 
             </section>
 
+            <!-- 3. Table Analysis View (Hidden by default) -->
+            <section id="table-analysis-view" class="view-panel hidden">
+                <div class="recall-header" style="border-color: rgba(217, 70, 239, 0.25);">
+                    <button class="back-to-menu-btn">
+                <div class="recall-header" style="border-color: rgba(15, 118, 110, 0.25);">
+                    <button class="back-to-menu-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Μενού Μελέτης
+                    </button>
+                    <span id="table-analysis-progress" style="color: #0f766e; font-weight: 600; font-size: 0.9rem;">Πίνακας 0 από 0</span>
+                </div>
+
+                <!-- Chapter Selector Dropdown -->
+                <div class="quick-dropdown-wrapper" style="position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 14px; margin-bottom: 8px;">
+                    <button id="table-chapters-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(15, 118, 110, 0.25);">
+                        <span class="dropdown-label" style="color: #0f766e; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Κεφάλαιο</span>
+                        <span id="table-chapters-dropdown-value" class="dropdown-value" style="font-weight: 600; font-size: 1rem; color: var(--text-primary); text-align: left; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding-right: 24px;">Όλα</span>
+                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #0f766e;">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div id="table-chapters-overlay" class="chapters-vertical-list-overlay hidden">
+                        <!-- Dynamic Chapters populated by study.js -->
+                    </div>
+                </div>
+
+                <!-- Table Selector Dropdown -->
+                <div class="quick-dropdown-wrapper" style="position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; margin-bottom: 8px;">
+                    <button id="tables-dropdown-btn" class="large-dropdown-select-btn" style="border-color: rgba(15, 118, 110, 0.25);">
+                        <span class="dropdown-label" style="color: #0f766e; opacity: 0.85; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: block; text-align: left; margin-bottom: 2px;">Πίνακας</span>
+                        <span id="tables-dropdown-value" class="dropdown-value" style="font-weight: 600; font-size: 1.05rem; color: var(--text-primary); text-align: left; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; padding-right: 24px;">Επιλέξτε Πίνακα...</span>
+                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 20px; top: calc(50% - 10px); color: #0f766e;">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div id="tables-dropdown-overlay" class="questions-vertical-list-overlay hidden">
+                        <!-- Dynamic Tables populated by study.js -->
+                    </div>
+                </div>
+
+                <!-- Table Title Container -->
+                <div class="topic-title-header" style="margin-top: 20px;">
+                    <h2 id="table-analysis-title">Φόρτωση πίνακα...</h2>
+                </div>
+
+                <!-- Interactive Table Container -->
+                <div class="table-analysis-container" style="position: relative; overflow-x: auto; background: var(--card-bg); border: 2px solid rgba(15, 118, 110, 0.3) !important; border-radius: var(--border-radius); box-shadow: var(--shadow-main); margin-bottom: 24px; max-width: 100%;">
+                    <table class="interactive-med-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                        <thead id="table-analysis-thead">
+                            <!-- Populated dynamically -->
+                        </thead>
+                        <tbody id="table-analysis-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Dedicated Cell Details Box (Prevents cropped text and works beautifully on hover/click) -->
+                <div id="table-cell-details-box" style="display: none; background: var(--card-bg); border: 2px solid var(--primary-color) !important; border-radius: var(--border-radius); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-main); transition: all 0.3s ease;">
+                    <!-- Populated dynamically on cell hover or click -->
+                </div>
+
+                <!-- Detailed Analysis Block -->
+                <div class="explanation-wrapper" style="border: 2px solid rgba(15, 118, 110, 0.3) !important; background: var(--card-bg); border-radius: var(--border-radius); padding: 24px; box-shadow: var(--shadow-main);">
+                    <h4 style="color: #0f766e; font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid rgba(15, 118, 110, 0.15); padding-bottom: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ανάλυση &amp; Μεθοδολογία Μελέτης
+                    </h4>
+                    <div id="table-analysis-detailed-content" class="explanation-content" style="color: var(--text-primary); line-height: 1.7; font-size: 1rem;">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- Footer Info -->
@@ -395,8 +541,8 @@
     </div>
 
     <!-- App Logic Scripts -->
-    <script src="data/socratic_questions.js?v=2.0"></script>
-    <script src="data/flashcard_questions.js?v=2.0"></script>
-    <script src="study.js?v=2.0"></script>
+    <script src="data/flashcard_questions.js"></script>
+    <script src="data/table_analyses.js"></script>
+    <script src="study.js"></script>
 </body>
 </html>

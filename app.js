@@ -2,6 +2,7 @@
 let questions = [];
 let filteredQuestions = [];
 let activeSubspecialty = "Όλα";
+let activeChapter = "Όλα";
 let currentQuestionIndex = 0;
 let score = 0; // Number of questions answered correctly on the first try
 let totalAttempts = 0; // Overall number of options clicked
@@ -22,6 +23,12 @@ const prevButton = document.getElementById('prev-button');
 const themeToggleBtn = document.getElementById('theme-toggle');
 const revealAnswerBtn = document.getElementById('reveal-answer-btn');
 const quickNavPills = document.getElementById('quick-nav-pills');
+
+// Dropdown Elements
+const quizChaptersDropdownBtn = document.getElementById('quiz-chapters-dropdown-btn');
+const quizChaptersOverlay = document.getElementById('quiz-chapters-overlay');
+const quizQuestionsDropdownBtn = document.getElementById('quiz-questions-dropdown-btn');
+const quizQuestionsOverlay = document.getElementById('quiz-questions-overlay');
 
 // Progress Elements
 const progressFill = document.getElementById('progress-fill');
@@ -50,6 +57,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (revealAnswerBtn) {
         revealAnswerBtn.addEventListener('click', handleRevealAnswer);
     }
+
+    // Dropdowns click event handlers
+    if (quizChaptersDropdownBtn && quizChaptersOverlay) {
+        quizChaptersDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (quizQuestionsOverlay) quizQuestionsOverlay.classList.add('hidden');
+            quizChaptersOverlay.classList.toggle('hidden');
+        });
+    }
+
+    if (quizQuestionsDropdownBtn && quizQuestionsOverlay) {
+        quizQuestionsDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (quizChaptersOverlay) quizChaptersOverlay.classList.add('hidden');
+            quizQuestionsOverlay.classList.toggle('hidden');
+        });
+    }
+
+    // Hide dropdown overlays if clicked outside
+    document.addEventListener('click', (e) => {
+        if (quizChaptersOverlay && !quizChaptersOverlay.contains(e.target) && e.target !== quizChaptersDropdownBtn && !quizChaptersDropdownBtn.contains(e.target)) {
+            quizChaptersOverlay.classList.add('hidden');
+        }
+        if (quizQuestionsOverlay && !quizQuestionsOverlay.contains(e.target) && e.target !== quizQuestionsDropdownBtn && !quizQuestionsDropdownBtn.contains(e.target)) {
+            quizQuestionsOverlay.classList.add('hidden');
+        }
+    });
 });
 
 /**
@@ -205,6 +239,8 @@ function loadQuestions() {
             q.incorrectIndices = [];
             q.isFirstAttempt = true;
         });
+
+        populateChaptersOverlay();
         
         startQuiz();
     } catch (error) {
@@ -214,14 +250,120 @@ function loadQuestions() {
 }
 
 /**
- * Filter questions to show all 615 items
+ * Filter questions based on selected chapter
  */
 function filterQuestions() {
-    filteredQuestions = questions;
+    if (activeChapter === "Όλα") {
+        filteredQuestions = questions;
+    } else {
+        filteredQuestions = questions.filter(q => {
+            const ch = getQuestionChapter(q);
+            return isChapterMatch(ch, activeChapter);
+        });
+    }
     
     currentQuestionIndex = 0;
     initQuickNav();
+    populateQuestionsOverlay();
     showQuestion(0);
+}
+
+/**
+ * Chapter Extraction Helpers
+ */
+function getQuestionChapter(q) {
+    if (q.chapter) {
+        return q.chapter;
+    }
+    if (q.category && q.category.includes("/")) {
+        const parts = q.category.split("/");
+        if (parts.length > 1) {
+            return parts[1].trim();
+        }
+    }
+    return q.category || "Γενικά";
+}
+
+
+function isChapterMatch(questionCh, activeCh) {
+    if (activeCh === "Όλα") return true;
+    return questionCh === activeCh;
+}
+
+function getChapterList(questions) {
+    const presentChapters = new Set();
+    questions.forEach(q => {
+        const ch = getQuestionChapter(q);
+        if (ch) {
+            presentChapters.add(ch);
+        }
+    });
+
+    const uniqueList = Array.from(presentChapters).sort((a, b) => a.localeCompare(b, 'el'));
+    return ["Όλα", ...uniqueList];
+}
+
+function populateChaptersOverlay() {
+    if (!quizChaptersOverlay) return;
+    quizChaptersOverlay.innerHTML = '';
+    const chapterList = getChapterList(questions);
+    
+    chapterList.forEach(chapter => {
+        const item = document.createElement('button');
+        const isActive = (chapter === activeChapter);
+        item.className = `overlay-chapter-item ${isActive ? 'active' : ''}`;
+        item.textContent = chapter;
+        
+        item.addEventListener('click', () => {
+            handleChapterSelect(chapter);
+        });
+        quizChaptersOverlay.appendChild(item);
+    });
+}
+
+function populateQuestionsOverlay() {
+    if (!quizQuestionsOverlay) return;
+    quizQuestionsOverlay.innerHTML = '';
+    
+    filteredQuestions.forEach((q, idx) => {
+        const cleanQuestion = q.question.replace(/\*/g, '').trim();
+        const item = document.createElement('button');
+        const isActive = (idx === currentQuestionIndex);
+        item.className = `overlay-question-item ${isActive ? 'active' : ''}`;
+        item.setAttribute('data-index', idx);
+        item.style.width = '100%';
+        item.innerHTML = `
+            <strong style="color: #2563eb; flex-shrink: 0; margin-right: 4px;">Ερ. ${idx + 1}:</strong>
+            <span style="flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanQuestion}</span>
+        `;
+        item.addEventListener('click', () => {
+            currentQuestionIndex = idx;
+            showQuestion(idx);
+            quizQuestionsOverlay.classList.add('hidden');
+        });
+        quizQuestionsOverlay.appendChild(item);
+    });
+}
+
+function handleChapterSelect(chapter) {
+    activeChapter = chapter;
+    const chaptersVal = document.getElementById('quiz-chapters-dropdown-value');
+    if (chaptersVal) {
+        chaptersVal.textContent = chapter;
+    }
+    if (quizChaptersOverlay) {
+        quizChaptersOverlay.classList.add('hidden');
+        // Highlight active chapter in overlay
+        const items = quizChaptersOverlay.querySelectorAll('.overlay-chapter-item');
+        items.forEach(item => {
+            if (item.textContent === chapter) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+    filterQuestions();
 }
 
 
@@ -273,6 +415,26 @@ function showQuestion(index) {
     // Set UI elements
     categoryBadge.textContent = question.category || "Παιδιατρική";
     questionText.textContent = question.question;
+
+    // Also update the large button text showing active question
+    const qDisplay = document.getElementById('quiz-questions-dropdown-value');
+    if (qDisplay) {
+        const cleanQuestion = question.question.replace(/\*/g, '').trim();
+        qDisplay.textContent = `Ερ. ${index + 1}: ${cleanQuestion}`;
+    }
+
+    if (quizQuestionsOverlay) {
+        const items = quizQuestionsOverlay.querySelectorAll('.overlay-question-item');
+        items.forEach(item => item.classList.remove('active'));
+        const activeItem = quizQuestionsOverlay.querySelector(`.overlay-question-item[data-index="${index}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+            // Try to scroll the active item into view inside the dropdown scroll area
+            try {
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (e) {}
+        }
+    }
     
     // Navigation state
     prevButton.disabled = (index === 0);
