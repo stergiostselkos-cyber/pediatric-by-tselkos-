@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="el">
 <head>
     <meta charset="UTF-8">
@@ -122,9 +122,10 @@
       font-size: 0.95rem !important;
       margin-bottom: 6px !important;
     }
-    #quick-recall-view #quick-correct-answer-text {
+    #quick-recall-view #quick-correct-answer-text,
+    #quick-recall-view .correct-answer-box p {
       color: #000000 !important;
-      font-weight: 750 !important;
+      font-weight: 500 !important;
       font-size: 1.05rem !important;
       line-height: 1.6 !important;
     }
@@ -141,7 +142,8 @@
       color: #ca8a04 !important;
       font-weight: 900 !important;
     }
-    #quick-recall-view #quick-mnemonic-text {
+    #quick-recall-view #quick-mnemonic-text,
+    #quick-recall-view .mnemonic-box p {
       color: #000000 !important;
       font-weight: 750 !important;
       font-style: italic !important;
@@ -164,14 +166,14 @@
     }
     #quick-recall-view #quick-recall-explanation-content {
       color: #000000 !important;
-      font-weight: 600 !important;
+      font-weight: 400 !important;
       font-size: 0.98rem !important;
       line-height: 1.65 !important;
     }
     #quick-recall-view #quick-recall-explanation-content p, 
     #quick-recall-view #quick-recall-explanation-content li {
       color: #000000 !important;
-      font-weight: 600 !important;
+      font-weight: 400 !important;
       text-align: justify !important;
     }
     #quick-recall-view #quick-recall-explanation-content strong {
@@ -389,7 +391,7 @@
                         <!-- Correct Answer Box -->
                         <div class="correct-answer-box" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); color: #ef4444;">
                             <h4 style="color: #ef4444; opacity: 0.9;">Σύντομη Απάντηση:</h4>
-                            <p id="quick-correct-answer-text" style="color: var(--text-primary);">Φόρτωση σύντομης απάντησης...</p>
+                            <p id="quick-correct-answer-text" style="color: #000000 !important; font-weight: 500;">Φόρτωση σύντομης απάντησης...</p>
                         </div>
 
                         <!-- Mnemonic Tip Box -->

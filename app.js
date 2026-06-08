@@ -414,7 +414,7 @@ function showQuestion(index) {
     
     // Set UI elements
     categoryBadge.textContent = question.category || "Παιδιατρική";
-    questionText.textContent = question.question;
+    questionText.innerHTML = parseMarkdown(question.question);
 
     // Also update the large button text showing active question
     const qDisplay = document.getElementById('quiz-questions-dropdown-value');
@@ -582,7 +582,12 @@ function revealExplanation(explanationText) {
 function parseMarkdown(text) {
     if (!text) return "";
     
-    const lines = text.split('\n');
+    // Normalize different escaped newline variations and strip stray backslashes
+    let normalized = text.replace(/\\n/g, '\n');
+    normalized = normalized.replace(/\\\n/g, '\n');
+    normalized = normalized.replace(/\\/g, '');
+    
+    const lines = normalized.split('\n');
     let html = "";
     let inList = false;
     let inOrderedList = false;

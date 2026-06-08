@@ -1247,7 +1247,12 @@ function loadQuickRandomQuestion() {
 function parseMarkdown(text) {
     if (!text) return "";
     
-    const lines = text.split('\n');
+    // Normalize different escaped newline variations and strip stray backslashes
+    let normalized = text.replace(/\\n/g, '\n');
+    normalized = normalized.replace(/\\\n/g, '\n');
+    normalized = normalized.replace(/\\/g, '');
+    
+    const lines = normalized.split('\n');
     let html = "";
     let inList = false;
     let inOrderedList = false;
@@ -1291,7 +1296,7 @@ function parseMarkdown(text) {
                 inList = true;
             }
             const liText = line.replace(/^[-*•\u2022]\s*/, '').trim();
-            html += `<li style='margin-bottom: 8px; color: var(--text-primary);'>${liText}</li>`;
+            html += `<li style='margin-bottom: 8px;'>${liText}</li>`;
         }
         else if (/^\d+\.\s+/.test(line)) {
             if (inList) {
@@ -1303,7 +1308,7 @@ function parseMarkdown(text) {
                 inOrderedList = true;
             }
             const liText = line.replace(/^\d+\.\s+/, '').trim();
-            html += `<li style='margin-bottom: 8px; color: var(--text-primary);'>${liText}</li>`;
+            html += `<li style='margin-bottom: 8px;'>${liText}</li>`;
         }
         else {
             if (inList) {
@@ -1314,7 +1319,7 @@ function parseMarkdown(text) {
                 html += "</ol>";
                 inOrderedList = false;
             }
-            html += `<p style='line-height: 1.6; margin-bottom: 14px; color: var(--text-primary);'>${line}</p>`;
+            html += `<p style='line-height: 1.6; margin-bottom: 14px;'>${line}</p>`;
         }
     }
     
