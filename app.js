@@ -576,21 +576,68 @@ function revealExplanation(explanationText) {
     }
 }
 
-/**
- * Simple Markdown to HTML parser
- */
 function parseMarkdown(text) {
     if (!text) return "";
     
+    let processedText = convertListTablesToHTML(text);
+    
+    // Extract HTML tables (case-insensitive, matching across multiple lines)
+    const htmlTablePlaceholders = [];
+    
+    processedText = processedText.replace(/<table[\s\S]*?<\/table>/gi, (match) => {
+        let tableWithClass = match;
+        if (!/class=["'][^"']*med-table[^"']*["']/i.test(tableWithClass)) {
+            tableWithClass = tableWithClass.replace(/<table/i, '<table class="med-table"');
+        }
+        const placeholder = `__HTML_TABLE_PLACEHOLDER_${htmlTablePlaceholders.length}__`;
+        htmlTablePlaceholders.push(tableWithClass);
+        return placeholder;
+    });
+    
     // Normalize different escaped newline variations and strip stray backslashes
-    let normalized = text.replace(/\\n/g, '\n');
+    let normalized = processedText.replace(/\\n/g, '\n');
     normalized = normalized.replace(/\\\n/g, '\n');
     normalized = normalized.replace(/\\/g, '');
     
-    const lines = normalized.split('\n');
+    // Extract Markdown tables
+    const mdTablePlaceholders = [];
+    const linesForTableCheck = normalized.split('\n');
+    let newLines = [];
+    let currentTableLines = null;
+    
+    for (let i = 0; i < linesForTableCheck.length; i++) {
+        let line = linesForTableCheck[i].trim();
+        if (line.startsWith('|')) {
+            if (currentTableLines === null) {
+                currentTableLines = [];
+            }
+            currentTableLines.push(line);
+        } else {
+            if (currentTableLines !== null) {
+                const htmlTable = parseMarkdownTable(currentTableLines);
+                const placeholder = `__MD_TABLE_PLACEHOLDER_${mdTablePlaceholders.length}__`;
+                mdTablePlaceholders.push(htmlTable);
+                newLines.push(placeholder);
+                currentTableLines = null;
+            }
+            newLines.push(linesForTableCheck[i]);
+        }
+    }
+    if (currentTableLines !== null) {
+        const htmlTable = parseMarkdownTable(currentTableLines);
+        const placeholder = `__MD_TABLE_PLACEHOLDER_${mdTablePlaceholders.length}__`;
+        mdTablePlaceholders.push(htmlTable);
+        newLines.push(placeholder);
+    }
+    
+    const lines = newLines;
     let html = "";
     let inList = false;
     let inOrderedList = false;
+    
+    // Regex for list matching (ASCII-safe unicode escapes for Greek characters)
+    const orderedListRegex = /^(?:(?:\*\*(\d+|\w|[\u0370-\u03ff])\.\*\*)|(?:(\d+|\w|[\u0370-\u03ff])\.))\s+/;
+    const unorderedListRegex = /^(?:[-*\u2022]|\*\*(?:[-*\u2022])\*\*)\s+/;
     
     for (let line of lines) {
         line = line.trim();
@@ -606,8 +653,19 @@ function parseMarkdown(text) {
             continue;
         }
         
-        // Parse bold: **text** -> <strong>text</strong>
-        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Check if line is a placeholder
+        if (line.startsWith("__HTML_TABLE_PLACEHOLDER_") || line.startsWith("__MD_TABLE_PLACEHOLDER_")) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
+            if (inOrderedList) {
+                html += "</ol>";
+                inOrderedList = false;
+            }
+            html += line + "\n";
+            continue;
+        }
         
         // Heading ###
         if (line.startsWith("###")) {
@@ -620,10 +678,10 @@ function parseMarkdown(text) {
                 inOrderedList = false;
             }
             const headerText = line.substring(3).trim();
-            html += `<h3>${headerText}</h3>`;
+            html += `<h3>${parseInlineMarkdown(headerText)}</h3>`;
         }
-        // Unordered list items - or * or •
-        else if (line.startsWith("-") || line.startsWith("*") || line.startsWith("•") || line.startsWith("\u2022")) {
+        // Unordered lists
+        else if (unorderedListRegex.test(line)) {
             if (inOrderedList) {
                 html += "</ol>";
                 inOrderedList = false;
@@ -632,11 +690,11 @@ function parseMarkdown(text) {
                 html += "<ul>";
                 inList = true;
             }
-            const liText = line.replace(/^[-*•\u2022]\s*/, '').trim();
-            html += `<li>${liText}</li>`;
+            const liText = line.replace(unorderedListRegex, '').trim();
+            html += `<li>${parseInlineMarkdown(liText)}</li>`;
         }
-        // Ordered list items
-        else if (/^\d+\.\s+/.test(line)) {
+        // Ordered lists
+        else if (orderedListRegex.test(line)) {
             if (inList) {
                 html += "</ul>";
                 inList = false;
@@ -645,10 +703,10 @@ function parseMarkdown(text) {
                 html += "<ol>";
                 inOrderedList = true;
             }
-            const liText = line.replace(/^\d+\.\s+/, '').trim();
-            html += `<li>${liText}</li>`;
+            const liText = line.replace(orderedListRegex, '').trim();
+            html += `<li>${parseInlineMarkdown(liText)}</li>`;
         }
-        // Standard Paragraphs
+        // Standard paragraphs
         else {
             if (inList) {
                 html += "</ul>";
@@ -658,7 +716,7 @@ function parseMarkdown(text) {
                 html += "</ol>";
                 inOrderedList = false;
             }
-            html += `<p>${line}</p>`;
+            html += `<p>${parseInlineMarkdown(line)}</p>`;
         }
     }
     
@@ -669,7 +727,115 @@ function parseMarkdown(text) {
         html += "</ol>";
     }
     
+    // Restore placeholders
+    for (let j = 0; j < htmlTablePlaceholders.length; j++) {
+        const placeholder = `__HTML_TABLE_PLACEHOLDER_${j}__`;
+        html = html.replace(placeholder, htmlTablePlaceholders[j]);
+    }
+    for (let j = 0; j < mdTablePlaceholders.length; j++) {
+        const placeholder = `__MD_TABLE_PLACEHOLDER_${j}__`;
+        html = html.replace(placeholder, mdTablePlaceholders[j]);
+    }
+    
     return html;
+}
+
+function parseMarkdownTable(tableLines) {
+    if (tableLines.length === 0) return "";
+    
+    let html = '<table class="med-table"><thead>';
+    let hasHeader = false;
+    let inBody = false;
+    
+    for (let i = 0; i < tableLines.length; i++) {
+        const line = tableLines[i].trim();
+        let cleanLine = line;
+        if (cleanLine.startsWith('|')) cleanLine = cleanLine.substring(1);
+        if (cleanLine.endsWith('|')) cleanLine = cleanLine.substring(0, cleanLine.length - 1);
+        
+        const cells = cleanLine.split('|').map(c => c.trim());
+        const isSeparator = cells.every(cell => /^:?-+:?$/.test(cell));
+        if (isSeparator) {
+            continue;
+        }
+        
+        if (!hasHeader) {
+            html += '<tr>';
+            for (const cell of cells) {
+                html += `<th>${parseInlineMarkdown(cell)}</th>`;
+            }
+            html += '</tr></thead><tbody>';
+            hasHeader = true;
+            inBody = true;
+        } else {
+            html += '<tr>';
+            for (const cell of cells) {
+                html += `<td>${parseInlineMarkdown(cell)}</td>`;
+            }
+            html += '</tr>';
+        }
+    }
+    
+    if (inBody) {
+        html += '</tbody>';
+    }
+    html += '</table>';
+    return html;
+}
+
+function parseInlineMarkdown(text) {
+    if (!text) return "";
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return formatted;
+}
+
+function parseMarkdownTable(tableLines) {
+    if (tableLines.length === 0) return "";
+    
+    let html = '<table class="med-table"><thead>';
+    let hasHeader = false;
+    let inBody = false;
+    
+    for (let i = 0; i < tableLines.length; i++) {
+        const line = tableLines[i].trim();
+        let cleanLine = line;
+        if (cleanLine.startsWith('|')) cleanLine = cleanLine.substring(1);
+        if (cleanLine.endsWith('|')) cleanLine = cleanLine.substring(0, cleanLine.length - 1);
+        
+        const cells = cleanLine.split('|').map(c => c.trim());
+        const isSeparator = cells.every(cell => /^:?-+:?$/.test(cell));
+        if (isSeparator) {
+            continue;
+        }
+        
+        if (!hasHeader) {
+            html += '<tr>';
+            for (const cell of cells) {
+                html += `<th>${parseInlineMarkdown(cell)}</th>`;
+            }
+            html += '</tr></thead><tbody>';
+            hasHeader = true;
+            inBody = true;
+        } else {
+            html += '<tr>';
+            for (const cell of cells) {
+                html += `<td>${parseInlineMarkdown(cell)}</td>`;
+            }
+            html += '</tr>';
+        }
+    }
+    
+    if (inBody) {
+        html += '</tbody>';
+    }
+    html += '</table>';
+    return html;
+}
+
+function parseInlineMarkdown(text) {
+    if (!text) return "";
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return formatted;
 }
 
 /**
@@ -823,3 +989,94 @@ function updateQuickNavHighlight() {
         activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
 }
+
+
+function convertListTablesToHTML(text) {
+    if (!text) return "";
+    
+    let lines = text.split('\n');
+    let outputLines = [];
+    let inTable = false;
+    let tableLines = [];
+    let tableHeader = "";
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        
+        // Check if line indicates start of a table
+        let isTableHeaderLine = /📋|Πίνακας/i.test(line) && line.endsWith(':');
+        
+        if (isTableHeaderLine) {
+            if (inTable) {
+                outputLines.push(renderCustomTable(tableHeader, tableLines));
+                tableLines = [];
+            }
+            inTable = true;
+            tableHeader = line;
+            continue;
+        }
+        
+        if (inTable) {
+            let isRow = /^(?:[-*\u2022]|\*\*(?:[-*\u2022])\*\*)\s+/.test(line) && (line.includes('→') || line.includes('\u2192') || line.includes(':'));
+            let isSectionHeader = line.startsWith('**') && line.endsWith(':**');
+            
+            if (isRow || isSectionHeader || line === "" || line === "---") {
+                if (line !== "" && line !== "---") {
+                    tableLines.push(line);
+                }
+            } else {
+                outputLines.push(renderCustomTable(tableHeader, tableLines));
+                inTable = false;
+                tableLines = [];
+                outputLines.push(lines[i]);
+            }
+        } else {
+            outputLines.push(lines[i]);
+        }
+    }
+    
+    if (inTable) {
+        outputLines.push(renderCustomTable(tableHeader, tableLines));
+    }
+    
+    return outputLines.join('\n');
+}
+
+function renderCustomTable(header, lines) {
+    if (lines.length === 0) {
+        return header;
+    }
+    
+    let cleanHeader = header.replace(/^[📋\s*]+/, '').replace(/\*\*+/g, '').replace(/:$/, '').trim();
+    let html = `<div class="table-title">📋 ${cleanHeader}</div>`;
+    html += `<div class="table-responsive"><table class="med-table"><tbody>`;
+    
+    for (let line of lines) {
+        let trimmed = line.trim();
+        if (trimmed.startsWith('**') && trimmed.endsWith(':**')) {
+            let secTitle = trimmed.replace(/\*\*+/g, '').replace(/:$/, '').trim();
+            html += `<tr class="table-section-row"><td colspan="3" style="font-weight: bold; background: rgba(99, 102, 241, 0.04) !important; color: var(--primary-color) !important;">${secTitle}</td></tr>`;
+        } else {
+            let cleanLine = trimmed.replace(/^(?:[-*\u2022]|\*\*(?:[-*\u2022])\*\*)\s+/, '').trim();
+            let parts = cleanLine.split(/\u2192|→/);
+            if (parts.length >= 2) {
+                let col1 = parts[0].trim();
+                let col2 = parts.slice(1).join('→').trim();
+                
+                let col1Parts = col1.split(':');
+                if (col1Parts.length >= 2 && !col1.includes('(') && col1Parts[0].trim().length < 30) {
+                    let key = col1Parts[0].trim();
+                    let val1 = col1Parts.slice(1).join(':').trim();
+                    html += `<tr><td style="font-weight: bold; width: 25%;">${parseInlineMarkdown(key)}</td><td style="width: 35%;">${parseInlineMarkdown(val1)}</td><td style="width: 40%;">${parseInlineMarkdown(col2)}</td></tr>`;
+                } else {
+                    html += `<tr><td style="font-weight: bold; width: 40%;">${parseInlineMarkdown(col1)}</td><td colspan="2">${parseInlineMarkdown(col2)}</td></tr>`;
+                }
+            } else {
+                html += `<tr><td colspan="3">${parseInlineMarkdown(cleanLine)}</td></tr>`;
+            }
+        }
+    }
+    html += `</tbody></table></div>`;
+    return html;
+}
+
