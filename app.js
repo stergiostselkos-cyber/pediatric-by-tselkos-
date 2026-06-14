@@ -589,6 +589,7 @@ function parseMarkdown(text) {
         if (!/class=["'][^"']*med-table[^"']*["']/i.test(tableWithClass)) {
             tableWithClass = tableWithClass.replace(/<table/i, '<table class="med-table"');
         }
+        tableWithClass = `<div class="table-responsive">${tableWithClass}</div>`;
         const placeholder = `__HTML_TABLE_PLACEHOLDER_${htmlTablePlaceholders.length}__`;
         htmlTablePlaceholders.push(tableWithClass);
         return placeholder;
@@ -743,7 +744,7 @@ function parseMarkdown(text) {
 function parseMarkdownTable(tableLines) {
     if (tableLines.length === 0) return "";
     
-    let html = '<table class="med-table"><thead>';
+    let html = '<div class="table-responsive"><table class="med-table"><thead>';
     let hasHeader = false;
     let inBody = false;
     
@@ -779,56 +780,7 @@ function parseMarkdownTable(tableLines) {
     if (inBody) {
         html += '</tbody>';
     }
-    html += '</table>';
-    return html;
-}
-
-function parseInlineMarkdown(text) {
-    if (!text) return "";
-    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return formatted;
-}
-
-function parseMarkdownTable(tableLines) {
-    if (tableLines.length === 0) return "";
-    
-    let html = '<table class="med-table"><thead>';
-    let hasHeader = false;
-    let inBody = false;
-    
-    for (let i = 0; i < tableLines.length; i++) {
-        const line = tableLines[i].trim();
-        let cleanLine = line;
-        if (cleanLine.startsWith('|')) cleanLine = cleanLine.substring(1);
-        if (cleanLine.endsWith('|')) cleanLine = cleanLine.substring(0, cleanLine.length - 1);
-        
-        const cells = cleanLine.split('|').map(c => c.trim());
-        const isSeparator = cells.every(cell => /^:?-+:?$/.test(cell));
-        if (isSeparator) {
-            continue;
-        }
-        
-        if (!hasHeader) {
-            html += '<tr>';
-            for (const cell of cells) {
-                html += `<th>${parseInlineMarkdown(cell)}</th>`;
-            }
-            html += '</tr></thead><tbody>';
-            hasHeader = true;
-            inBody = true;
-        } else {
-            html += '<tr>';
-            for (const cell of cells) {
-                html += `<td>${parseInlineMarkdown(cell)}</td>`;
-            }
-            html += '</tr>';
-        }
-    }
-    
-    if (inBody) {
-        html += '</tbody>';
-    }
-    html += '</table>';
+    html += '</table></div>';
     return html;
 }
 
