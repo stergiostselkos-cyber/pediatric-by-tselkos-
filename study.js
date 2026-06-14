@@ -197,6 +197,12 @@ function isChapterMatch(questionCh, activeCh) {
     return questionCh === activeCh;
 }
 
+function getChapterNumber(chapterStr) {
+    if (!chapterStr) return 999;
+    const match = chapterStr.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 999;
+}
+
 function getChapterList(questions) {
     const presentChapters = new Set();
     questions.forEach(q => {
@@ -206,7 +212,14 @@ function getChapterList(questions) {
         }
     });
 
-    const uniqueList = Array.from(presentChapters).sort((a, b) => a.localeCompare(b, 'el'));
+    const uniqueList = Array.from(presentChapters).sort((a, b) => {
+        const numA = getChapterNumber(a);
+        const numB = getChapterNumber(b);
+        if (numA !== numB) {
+            return numA - numB;
+        }
+        return a.localeCompare(b, 'el');
+    });
     return ["Όλα", ...uniqueList];
 }
 
