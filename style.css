@@ -2396,3 +2396,48 @@ body.light-theme .cell-tooltip {
 .interactive-cell.active-hover .cell-tooltip.tooltip-bottom.tooltip-left-align {
     transform: translateY(0) scale(1);
 }
+
+/* Embedded Markdown Images styling */
+.embedded-image-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    margin: 16px auto !important;
+    padding: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    max-width: 90% !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+body.light-theme .embedded-image-container {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.embedded-med-image {
+    max-width: 100% !important;
+    max-height: 400px !important;
+    border-radius: 8px !important;
+    cursor: zoom-in !important;
+    object-fit: contain !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.embedded-med-image:hover {
+    transform: scale(1.015) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+.image-caption {
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 8px !important;
+    font-style: italic !important;
+    text-align: center !important;
+    font-weight: 500 !important;
+    display: block !important;
+}

@@ -1468,6 +1468,7 @@ function parseMarkdownTable(tableLines) {
 function parseInlineMarkdown(text) {
     if (!text) return "";
     let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/!\[(.*?)\]\((.*?)\)/g, '<div class="embedded-image-container"><img src="$2" alt="$1" class="embedded-med-image" onclick="window.open(this.src, \'_blank\')" /><span class="image-caption">$1</span></div>');
     return formatted;
 }
 
